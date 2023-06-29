@@ -2,8 +2,8 @@ package ru.yandex.practicum.statsserver.mapper;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import ru.yandex.practicum.statsserver.dto.EndpointHitDto;
-import ru.yandex.practicum.statsserver.dto.ViewStatDto;
+import ru.yandex.practicum.statsdto.dto.EndpointHitDto;
+import ru.yandex.practicum.statsdto.dto.ViewStatDto;
 import ru.yandex.practicum.statsserver.model.Stat;
 
 import java.time.LocalDateTime;
@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 public class StatMapper {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static EndpointHitDto toEndpointHitDto(Stat stat) {
         return EndpointHitDto.builder()
                 .id(stat.getId())
@@ -29,7 +30,7 @@ public class StatMapper {
                 .app(endpointHitDto.getApp())
                 .uri(endpointHitDto.getUri())
                 .ip(endpointHitDto.getIp())
-                .timestamp(LocalDateTime.parse(endpointHitDto.getTimestamp(),FORMATTER))
+                .timestamp(LocalDateTime.parse(endpointHitDto.getTimestamp(), FORMATTER))
                 .build();
     }
 

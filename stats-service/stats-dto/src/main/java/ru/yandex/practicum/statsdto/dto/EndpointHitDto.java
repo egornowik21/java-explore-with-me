@@ -1,12 +1,9 @@
-package ru.yandex.practicum.statsserver.dto;
+package ru.yandex.practicum.statsdto.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
-
-import java.time.LocalDateTime;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
