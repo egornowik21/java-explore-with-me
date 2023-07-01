@@ -7,6 +7,7 @@
         <module>stats-service/stats-client</module>
         <module>stats-service/stats-server</module>
 		<module>stats-service/stats-dto</module>
+		<module>ewm-service</module>
 	</modules>
 
     <parent>
