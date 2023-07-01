@@ -12,6 +12,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statservice
       - POSTGRES_USER=share
       - POSTGRES_PASSWORD=password
+      - POSTGRES_INITDB_ARGS="-E UTF8"
 
   stats-db:
     image: postgres:14-alpine

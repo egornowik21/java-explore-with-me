@@ -2,7 +2,6 @@ package ru.yandex.practicum.statsserver.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
 import ru.yandex.practicum.statsdto.dto.ViewStatDto;
 import ru.yandex.practicum.statsserver.model.Stat;
 
