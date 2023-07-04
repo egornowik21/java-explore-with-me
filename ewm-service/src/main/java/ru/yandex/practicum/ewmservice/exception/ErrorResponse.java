@@ -1,4 +1,4 @@
-package ru.yandex.practicum.statsserver.exception;
+package ru.yandex.practicum.ewmservice.exception;
 
 public class ErrorResponse {
     String error;

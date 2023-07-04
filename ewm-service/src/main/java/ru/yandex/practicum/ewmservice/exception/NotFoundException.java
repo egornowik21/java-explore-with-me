@@ -1,4 +1,4 @@
-package ru.yandex.practicum.statsserver.exception;
+package ru.yandex.practicum.ewmservice.exception;
 
 public class NotFoundException extends RuntimeException {
     public NotFoundException(String s) {

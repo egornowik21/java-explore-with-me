@@ -1,4 +1,4 @@
-package ru.yandex.practicum.statsserver.exception;
+package ru.yandex.practicum.ewmservice.exception;
 
 public class ValidationException extends RuntimeException {
     public ValidationException(String s) {

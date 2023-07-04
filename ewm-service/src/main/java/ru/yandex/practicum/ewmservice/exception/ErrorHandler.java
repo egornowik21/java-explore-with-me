@@ -1,4 +1,4 @@
-package ru.yandex.practicum.statsserver.exception;
+package ru.yandex.practicum.ewmservice.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
