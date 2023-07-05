@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.user.dto.UserDto;
 import ru.yandex.practicum.ewmservice.user.service.UserService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -16,7 +17,7 @@ public class AdminUserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto saveNewUser(@RequestBody UserDto userDto) {
+    public UserDto saveNewUser(@Valid @RequestBody UserDto userDto) {
         log.info("POST/users - добавлен текущий пользователь.");
         return userService.postUser(userDto);
     }
