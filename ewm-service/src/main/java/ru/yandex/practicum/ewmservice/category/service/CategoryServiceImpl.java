@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.ewmservice.category.dao.CategoryRepository;
 import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
+import ru.yandex.practicum.ewmservice.category.dto.NewCategoryDto;
 import ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper;
 import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
@@ -35,6 +36,31 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = categoryRepository.findById(catId)
                 .orElseThrow(() -> new NotFoundException("Категория не найдена"));
         return CategoryMapper.toCategoryDto(category);
+    }
+
+
+    @Override
+    public CategoryDto postCategory(NewCategoryDto newCategoryDto) {
+        Category category = CategoryMapper.inNewCategoryDto(newCategoryDto);
+
+        return CategoryMapper.toCategoryDto(categoryRepository.save(category));
+    }
+    @Override
+    public CategoryDto patchCategory(Long id, CategoryDto categoryDto) {
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Категория не найдена"));
+        if (categoryDto.getName()==null) {
+            category.setName(category.getName());
+        } else {
+            category.setName(categoryDto.getName());
+        }
+        categoryRepository.save(category);
+        return CategoryMapper.toCategoryDto(category);
+    }
+
+    @Override
+    public void deleteCategoryById(Long catId) {
+        categoryRepository.deleteById(catId);
     }
 
 }

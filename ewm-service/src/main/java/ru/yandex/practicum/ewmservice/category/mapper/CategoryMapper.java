@@ -25,8 +25,9 @@ public class CategoryMapper {
                 .build();
     }
 
-    public static Category toNewCategoryDto(NewCategoryDto newCategoryDto) {
+    public static Category inNewCategoryDto(NewCategoryDto newCategoryDto) {
         return Category.builder()
+
                 .name(newCategoryDto.getName())
                 .build();
     }
