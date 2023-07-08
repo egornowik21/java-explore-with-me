@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
+import ru.yandex.practicum.ewmservice.location.dto.LocationDto;
 import ru.yandex.practicum.ewmservice.location.model.Location;
 import ru.yandex.practicum.ewmservice.user.dto.UserShortDto;
 
@@ -21,7 +22,7 @@ public class EventShortDto {
     LocalDateTime eventDate;
     UserShortDto initiator;
     String description;
-    Location location;
+    LocationDto location;
     Boolean paid;
     Integer participantLimit;
     String title;
