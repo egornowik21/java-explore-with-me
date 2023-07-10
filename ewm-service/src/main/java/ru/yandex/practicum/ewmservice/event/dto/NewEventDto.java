@@ -21,7 +21,7 @@ public class NewEventDto {
     @NotBlank
     @Size(max = 2000, min = 20)
     String annotation;
-    @NotNull
+    @NotNull(message = "Категория не может быть пустой")
     Long category;
     @NotBlank(message = "Описание не может быть пустым")
     @Size(max = 7000, min = 20)
@@ -35,7 +35,7 @@ public class NewEventDto {
     Boolean paid;
     @NotNull(message = "Лимит участников не может быть пустым")
     Integer participantLimit;
-    @NotNull
+    @NotNull(message = "Статус пре-модерации не может быть пустым")
     Boolean requestModeration;
     @NotBlank(message = "Заголовок события заявки не может быть пустым")
     @Size(max = 120, min = 3)
