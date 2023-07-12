@@ -6,13 +6,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.ewmservice.category.dao.CategoryRepository;
-import ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper;
 import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
-import ru.yandex.practicum.ewmservice.event.dto.EventFullDto;
-import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
-import ru.yandex.practicum.ewmservice.event.dto.NewEventDto;
-import ru.yandex.practicum.ewmservice.event.dto.UpdateEventUserRequest;
+import ru.yandex.practicum.ewmservice.event.dto.*;
 import ru.yandex.practicum.ewmservice.event.mapper.EventMapper;
 import ru.yandex.practicum.ewmservice.event.model.Event;
 import ru.yandex.practicum.ewmservice.event.model.State;
@@ -23,12 +19,16 @@ import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
 import ru.yandex.practicum.ewmservice.location.model.Location;
 import ru.yandex.practicum.ewmservice.location.service.LocationService;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
-import ru.yandex.practicum.ewmservice.user.mapper.UserMapper;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper.toCategoryDto;
+import static ru.yandex.practicum.ewmservice.location.mapper.LocationMapper.toLocationDto;
+import static ru.yandex.practicum.ewmservice.user.mapper.UserMapper.toUserShortDto;
 
 @Service
 @Slf4j
@@ -50,9 +50,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.
                 save(EventMapper.fromNewEventDto(newEventDto, category, location, user));
         EventFullDto returnEvent = EventMapper.toEventFullDto(event,
-                CategoryMapper.toCategoryDto(category),
-                UserMapper.toUserShortDto(user),
-                LocationMapper.toLocationDto(location)
+                toCategoryDto(category),
+                toUserShortDto(user),
+                toLocationDto(location)
         );
         return returnEvent;
     }
@@ -65,9 +65,9 @@ public class EventServiceImpl implements EventService {
         List<EventShortDto> eventList = eventRepository.findByInitiatorIdOrderByEventDateDesc(user.getId(), pageable)
                 .stream()
                 .map(event -> EventMapper.eventShortDto(event,
-                        UserMapper.toUserShortDto(user),
-                        CategoryMapper.toCategoryDto(event.getCategory()),
-                        LocationMapper.toLocationDto(event.getLocation())))
+                        toUserShortDto(user),
+                        toCategoryDto(event.getCategory()),
+                        toLocationDto(event.getLocation())))
                 .collect(Collectors.toList());
         return eventList;
     }
@@ -79,9 +79,9 @@ public class EventServiceImpl implements EventService {
         Event event = eventRepository.findByIdAndInitiatorIdOrderByEventDateDesc(eventId, userId).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
         return EventMapper.toEventFullDto(event,
-                CategoryMapper.toCategoryDto(event.getCategory()),
-                UserMapper.toUserShortDto(user),
-                LocationMapper.toLocationDto(event.getLocation())
+                toCategoryDto(event.getCategory()),
+                toUserShortDto(user),
+                toLocationDto(event.getLocation())
         );
     }
 
@@ -109,9 +109,9 @@ public class EventServiceImpl implements EventService {
         }
         Event eventToReturn = eventRepository.save(event);
         return EventMapper.toEventFullDto(eventToReturn,
-                CategoryMapper.toCategoryDto(eventToReturn.getCategory()),
-                UserMapper.toUserShortDto(user),
-                LocationMapper.toLocationDto(eventToReturn.getLocation())
+                toCategoryDto(eventToReturn.getCategory()),
+                toUserShortDto(user),
+                toLocationDto(eventToReturn.getLocation())
         );
     }
 
@@ -128,10 +128,78 @@ public class EventServiceImpl implements EventService {
                 states, categories, pageable);
         return eventList.stream()
                 .map(event -> EventMapper.toEventFullDto(event,
-                        CategoryMapper.toCategoryDto(event.getCategory()),
-                        UserMapper.toUserShortDto(event.getInitiator()),
-                        LocationMapper.toLocationDto(event.getLocation())))
+                        toCategoryDto(event.getCategory()),
+                        toUserShortDto(event.getInitiator()),
+                        toLocationDto(event.getLocation())))
                 .collect(Collectors.toList());
+    }
+
+    public EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest) {
+        Event event = eventRepository.findById(eventId).orElseThrow(
+                () -> new NotFoundException("Событие не найдено"));
+
+        if (event.getState() == State.PUBLISHED) {
+            throw new ConflictException("Только отменненые события или события в статусе рассмотрения можно изменить");
+        }
+        checkUpdateAdminParams(event, updateAdminRequest);
+
+        if (!Objects.isNull(updateAdminRequest.getStateAction())) {
+            StateAction state = updateAdminRequest.getStateAction();
+            switch (state) {
+                case PUBLISH_EVENT:
+                    if (event.getState() != State.PENDING) {
+                        throw new ConflictException("Только события в статус рассмотрения можно изменить");
+                    }
+                    event.setState(State.PUBLISHED);
+                    event.setPublishedOn(LocalDateTime.now());
+                    break;
+                case REJECT_EVENT:
+                    event.setState(State.CANCELED);
+                    break;
+                default:
+                    throw new ConflictException("Только события в статусе рассмотрения можно изменить");
+            }
+        }
+
+        Event updatedEvent = eventRepository.save(event);
+
+        return EventMapper.toEventFullDto(updatedEvent,
+                toCategoryDto(updatedEvent.getCategory()),
+                toUserShortDto(updatedEvent.getInitiator()),
+                toLocationDto(updatedEvent.getLocation()));
+    }
+
+    private void checkUpdateAdminParams(Event event, UpdateAdminRequest updateAdminRequest) {
+        if (updateAdminRequest.getAnnotation() != null) {
+            event.setAnnotation(updateAdminRequest.getAnnotation());
+        }
+        if (updateAdminRequest.getCategory() != null) {
+            Category category = categoryRepository.findById(updateAdminRequest.getCategory()).orElseThrow(
+                    () -> new NotFoundException("Событие не найдено"));
+            event.setCategory(category);
+        }
+        if (updateAdminRequest.getDescription() != null) {
+            event.setDescription(updateAdminRequest.getDescription());
+        }
+        if (updateAdminRequest.getEventDate() != null) {
+            event.setEventDate(updateAdminRequest.getEventDate());
+        }
+        if (updateAdminRequest.getLocation() != null) {
+            Location location = LocationMapper.fromLocationDto(locationService.createLocation(LocationMapper.toLocationDto(updateAdminRequest.getLocation())));
+            event.setLocation(location);
+        }
+        if (updateAdminRequest.getPaid() != null) {
+            event.setPaid(updateAdminRequest.getPaid());
+        }
+        if (updateAdminRequest.getParticipantLimit() != null) {
+            event.setParticipantLimit(updateAdminRequest.getParticipantLimit());
+        }
+        if (updateAdminRequest.getRequestModeration() != null) {
+            event.setRequestModeration(updateAdminRequest.getRequestModeration());
+        }
+        if (updateAdminRequest.getTitle() != null) {
+            event.setTitle(updateAdminRequest.getTitle());
+        }
     }
 
     private void checkUpdateParams(Event event, UpdateEventUserRequest updateEventUserRequest) {

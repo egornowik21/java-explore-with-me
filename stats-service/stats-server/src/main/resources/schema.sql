@@ -7,3 +7,4 @@ create TABLE IF NOT EXISTS stats (
   ip VARCHAR(512) NOT NULL,
   created timestamp without time zone
 );
+

@@ -2,16 +2,11 @@ package ru.yandex.practicum.ewmservice.event.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import ru.yandex.practicum.ewmservice.category.model.Category;
+import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.event.dto.EventFullDto;
-import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
+import ru.yandex.practicum.ewmservice.event.dto.UpdateAdminRequest;
 import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
-import ru.yandex.practicum.ewmservice.user.model.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -37,6 +32,12 @@ public class AdminEventController {
         log.info("GET/events - получен список событий для админа");
         LocalDateTime startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
         LocalDateTime endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
-        return eventService.getAdminEventList(users, states, categories, startsTime, endsTime,from,size);
+        return eventService.getAdminEventList(users, states, categories, startsTime, endsTime, from, size);
+    }
+
+    @PatchMapping("/{eventId}")
+    public EventFullDto updateEventAdmin(@PathVariable("eventId") Long eventId,
+                                         @RequestBody UpdateAdminRequest updateAdminRequest) {
+        return eventService.updateEventAdmin(eventId, updateAdminRequest);
     }
 }

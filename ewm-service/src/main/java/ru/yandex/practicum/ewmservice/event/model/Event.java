@@ -55,6 +55,6 @@ public class Event {
     @JoinColumn(name = "loc_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
     Location location;
-    @Enumerated
+    @Enumerated(EnumType.STRING)
     State state;
 }

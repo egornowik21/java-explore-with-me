@@ -1,10 +1,7 @@
 package ru.yandex.practicum.ewmservice.event.service;
 
 import ru.yandex.practicum.ewmservice.category.model.Category;
-import ru.yandex.practicum.ewmservice.event.dto.EventFullDto;
-import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
-import ru.yandex.practicum.ewmservice.event.dto.NewEventDto;
-import ru.yandex.practicum.ewmservice.event.dto.UpdateEventUserRequest;
+import ru.yandex.practicum.ewmservice.event.dto.*;
 import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
@@ -23,4 +20,5 @@ public interface EventService {
                                          LocalDateTime rangeEnd,
                                          Integer from,
                                          Integer size);
+    EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest);
 }
