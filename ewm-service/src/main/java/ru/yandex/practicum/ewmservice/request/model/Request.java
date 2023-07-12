@@ -32,7 +32,7 @@ public class Request {
     @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
     User requester;
     @Enumerated(EnumType.STRING)
-    State state;
+    Status status;
     @Column(name = "created", nullable = false)
     LocalDateTime created;
 }

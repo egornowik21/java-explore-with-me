@@ -3,6 +3,7 @@ package ru.yandex.practicum.ewmservice.event.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.WhereJoinTable;
 import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
 import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.location.model.Location;
@@ -11,6 +12,8 @@ import ru.yandex.practicum.ewmservice.user.model.User;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Getter
@@ -57,4 +60,9 @@ public class Event {
     Location location;
     @Enumerated(EnumType.STRING)
     State state;
+    @WhereJoinTable(clause = "status='CONFIRMED'")
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
+    @JoinTable(name = "requests", joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"))
+    Set<User> participants = new HashSet<>();
 }
