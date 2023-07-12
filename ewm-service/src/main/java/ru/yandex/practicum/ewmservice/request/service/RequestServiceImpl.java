@@ -18,6 +18,7 @@ import ru.yandex.practicum.ewmservice.user.model.User;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -35,6 +36,9 @@ public class RequestServiceImpl implements RequestService {
         Event event = eventRepository.findById(eventId).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
         List<Request> requestList = requestRepository.findByEventIdAndRequesterId(user.getId(), event.getId());
+        if (requestList.size() > 0) {
+            throw new ConflictException("Нельзя оставить повторный запрос");
+        }
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new ConflictException("Событие должно быть опубликовано");
         }
@@ -50,10 +54,34 @@ public class RequestServiceImpl implements RequestService {
                 .created(LocalDateTime.now())
                 .build();
         if (event.getRequestModeration()) {
-            request.setStatus(Status.CONFIRMED);
-        } else {
             request.setStatus(Status.PENDING);
+        } else {
+            request.setStatus(Status.CONFIRMED);
         }
+        return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
+    }
+
+    @Override
+    public List<ParticipationRequestDto> requestList(Long userId) {
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        List<Request> requestList = requestRepository.findByRequesterId(user.getId());
+        return requestList.stream()
+                .map(RequestMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public ParticipationRequestDto patchRequest(Long userId, Long requestId) {
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Request request = requestRepository.findById(requestId).
+                orElseThrow(() -> new NotFoundException("Запрос не найден"));
+        ;
+        if (!user.getId().equals(request.getRequester().getId())) {
+            throw new ConflictException("Это не запрос пользователя");
+        }
+        request.setStatus(Status.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 

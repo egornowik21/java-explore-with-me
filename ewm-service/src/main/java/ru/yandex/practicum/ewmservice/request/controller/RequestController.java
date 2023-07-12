@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.request.dto.ParticipationRequestDto;
 import ru.yandex.practicum.ewmservice.request.service.RequestService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping(path = "/users/{userId}/requests")
 @RequiredArgsConstructor
@@ -20,5 +22,18 @@ public class RequestController {
                                                @RequestParam("eventId") Long eventId) {
         log.info("POST/requests - добавлен новый запрос.");
         return requestService.postRequest(userId, eventId);
+    }
+
+    @GetMapping
+    public List<ParticipationRequestDto> getRequestList(@PathVariable("userId") Long userId) {
+        log.info("GET/requests - получен список всех запросов пользователя.");
+        return requestService.requestList(userId);
+    }
+
+    @PatchMapping("/{requestId}/cancel")
+    public ParticipationRequestDto patchRequest(@PathVariable("userId") Long userId,
+                                                @PathVariable("requestId") Long requestId) {
+        log.info("PATCH/requests - запрос отмене");
+        return requestService.patchRequest(userId, requestId);
     }
 }
