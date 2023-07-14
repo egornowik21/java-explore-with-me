@@ -1,4 +1,14 @@
 package ru.yandex.practicum.ewmservice.compilation.controller;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping(path = "/compilations")
+@RequiredArgsConstructor
+@Slf4j
 public class PublicCompilationController {
+
 }
