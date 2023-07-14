@@ -11,6 +11,6 @@ import java.util.List;
 @Data
 @Builder
 public class EventRequestStatusUpdateResult {
-    List<Long> requestIds;
-    Status status;
+    List<ParticipationRequestDto> confirmedRequests;
+    List<ParticipationRequestDto> rejectedRequests;
 }

@@ -9,6 +9,8 @@ import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.request.dao.RequestRepository;
+import ru.yandex.practicum.ewmservice.request.dto.EventRequestStatusUpdateRequest;
+import ru.yandex.practicum.ewmservice.request.dto.EventRequestStatusUpdateResult;
 import ru.yandex.practicum.ewmservice.request.dto.ParticipationRequestDto;
 import ru.yandex.practicum.ewmservice.request.mapper.RequestMapper;
 import ru.yandex.practicum.ewmservice.request.model.Request;
@@ -17,6 +19,7 @@ import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -84,6 +87,53 @@ public class RequestServiceImpl implements RequestService {
         request.setStatus(Status.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
+
+    @Override
+    public List<ParticipationRequestDto> getEventRequestList(Long userId, Long eventId) {
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Event event = eventRepository.findById(eventId).
+                orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        List<Event> eventList = eventRepository.findByInitiatorId(user.getId());
+        List<Request> requestList = requestRepository.findByEventIn(eventList);
+        return requestList.stream()
+                .map(RequestMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public EventRequestStatusUpdateResult patchEventRequest(Long userId,
+                                                     Long eventId,
+                                                     EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
+        User user = userRepository.findById(userId).
+                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Event event = eventRepository.findByIdAndInitiatorIdOrderByEventDateDesc(eventId,user.getId()).
+                orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
+        List<ParticipationRequestDto> canceledRequests = new ArrayList<>();
+        if (event.getParticipants().size()>event.getParticipantLimit()) {
+            throw new ConflictException("Запросов больше, чем лимит заявок на событие");
+        }
+        if (!event.getState().equals(State.PUBLISHED)) {
+            throw new ConflictException("Событие не подтверждено");
+        }
+        List<Request> requestList = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
+        requestList.forEach(r-> {
+            if (eventRequestStatusUpdateRequest.getStatus() == Status.REJECTED) {
+                r.setStatus(Status.REJECTED);
+                canceledRequests.add(RequestMapper.toParticipationRequestDto(r));
+            }
+            if (eventRequestStatusUpdateRequest.getStatus()==Status.CONFIRMED) {
+                r.setStatus(Status.CONFIRMED);
+                confirmedRequests.add(RequestMapper.toParticipationRequestDto(r));
+            }
+        });
+        return EventRequestStatusUpdateResult.builder()
+                .confirmedRequests(confirmedRequests)
+                .rejectedRequests(canceledRequests)
+                .build();
+    }
+
 
 
 }

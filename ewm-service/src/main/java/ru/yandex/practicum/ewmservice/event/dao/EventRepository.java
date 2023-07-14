@@ -11,6 +11,7 @@ import java.util.Optional;
 
 public interface EventRepository extends JpaRepository<Event,Long> {
     List<Event> findByInitiatorIdOrderByEventDateDesc (Long userId, Pageable pageable);
+    List<Event> findByInitiatorId (Long userId);
     Optional<Event> findByIdAndInitiatorIdOrderByEventDateDesc(Long id, Long userId);
     @Query("select e from Event e " +
             "where e.initiator.id in ?1 and " +

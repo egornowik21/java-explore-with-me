@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
 import lombok.experimental.FieldDefaults;
+import ru.yandex.practicum.ewmservice.request.model.Status;
 
 import java.util.List;
 
@@ -11,6 +12,6 @@ import java.util.List;
 @Data
 @Builder
 public class EventRequestStatusUpdateRequest {
-    List<ParticipationRequestDto> confirmedRequests;
-    List<ParticipationRequestDto> rejectedRequests;
+    List<Long> requestIds;
+    Status status;
 }
