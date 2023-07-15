@@ -1,7 +1,10 @@
 package ru.yandex.practicum.ewmservice.compilation.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper;
 import ru.yandex.practicum.ewmservice.compilation.dao.CompilationRepository;
 import ru.yandex.practicum.ewmservice.compilation.dto.CompilationDto;
@@ -12,6 +15,7 @@ import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
 import ru.yandex.practicum.ewmservice.event.mapper.EventMapper;
 import ru.yandex.practicum.ewmservice.event.model.Event;
+import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
 import ru.yandex.practicum.ewmservice.user.mapper.UserMapper;
 
@@ -43,4 +47,41 @@ public class CompilationServiceImpl implements CompilationService {
         Compilation compilation = compilationRepository.save(CompilationMapper.toCompilation(newCompilationToReturn, eventList.stream().collect(Collectors.toSet())));
         return CompilationMapper.toCompilationDto(compilation, eventsSet);
     }
+
+    @Override
+    public void deleteCompilationById(Long id) {
+        Compilation compilation = compilationRepository.findById(id).
+                orElseThrow(() -> new NotFoundException("Подборка не найдена"));
+        compilationRepository.deleteById(compilation.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CompilationDto getCompilationById(Long comId) {
+        Compilation compilation = compilationRepository.findById(comId)
+                .orElseThrow(() -> new NotFoundException("Подборка не найдена"));
+        return CompilationMapper.toCompilationDto(compilation,
+                compilation.getEvents().stream()
+                        .map(event -> EventMapper.eventShortDto(event,
+                                UserMapper.toUserShortDto(event.getInitiator()),
+                                CategoryMapper.toCategoryDto(event.getCategory()),
+                                LocationMapper.toLocationDto(event.getLocation())))
+                        .collect(Collectors.toSet()));
+    }
+
+    @Override
+    public List<CompilationDto> getCompilationDtoList(Boolean pinned, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from, size);
+        List<Compilation> compilationList = compilationRepository.findByPinned(pinned, pageable);
+        return compilationList.stream().
+                map(c -> CompilationMapper.toCompilationDto(c, c.getEvents().stream().map(
+                                        event -> EventMapper.eventShortDto(event,
+                                                UserMapper.toUserShortDto(event.getInitiator()),
+                                                CategoryMapper.toCategoryDto(event.getCategory()),
+                                                LocationMapper.toLocationDto(event.getLocation()))
+                                )
+                                .collect(Collectors.toSet()))
+                ).collect(Collectors.toList());
+    }
+
 }
