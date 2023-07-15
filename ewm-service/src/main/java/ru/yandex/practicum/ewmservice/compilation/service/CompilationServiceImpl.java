@@ -9,6 +9,7 @@ import ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper;
 import ru.yandex.practicum.ewmservice.compilation.dao.CompilationRepository;
 import ru.yandex.practicum.ewmservice.compilation.dto.CompilationDto;
 import ru.yandex.practicum.ewmservice.compilation.dto.NewCompilationDto;
+import ru.yandex.practicum.ewmservice.compilation.dto.UpdateCompilationRequest;
 import ru.yandex.practicum.ewmservice.compilation.mapper.CompilationMapper;
 import ru.yandex.practicum.ewmservice.compilation.model.Compilation;
 import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
@@ -83,5 +84,29 @@ public class CompilationServiceImpl implements CompilationService {
                                 .collect(Collectors.toSet()))
                 ).collect(Collectors.toList());
     }
+
+    public CompilationDto patchCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new NotFoundException("Подборка не найдена"));
+        if (updateCompilationRequest.getEvents() != null) {
+            List<Event> eventList = eventRepository.findAllById(updateCompilationRequest.getEvents());
+            compilation.setEvents(eventList.stream().collect(Collectors.toSet()));
+        }
+        if (updateCompilationRequest.getPinned() != null) {
+            compilation.setPinned(updateCompilationRequest.getPinned());
+        }
+        if (updateCompilationRequest.getTitle() != null) {
+            compilation.setTitle(updateCompilationRequest.getTitle());
+        }
+        Compilation compilationToReturn = compilationRepository.save(compilation);
+        return CompilationMapper.toCompilationDto(compilationToReturn,
+                compilation.getEvents().stream()
+                        .map(event -> EventMapper.eventShortDto(event,
+                                UserMapper.toUserShortDto(event.getInitiator()),
+                                CategoryMapper.toCategoryDto(event.getCategory()),
+                                LocationMapper.toLocationDto(event.getLocation())))
+                        .collect(Collectors.toSet()));
+    }
+
 
 }

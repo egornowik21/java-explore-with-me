@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.compilation.dto.CompilationDto;
 import ru.yandex.practicum.ewmservice.compilation.dto.NewCompilationDto;
+import ru.yandex.practicum.ewmservice.compilation.dto.UpdateCompilationRequest;
 import ru.yandex.practicum.ewmservice.compilation.service.CompilationService;
 
 import javax.validation.Valid;
@@ -30,6 +31,13 @@ public class AdminCompilationController {
     public void deleteCompilation(@PathVariable Long compId) {
         log.info("DELETE/compilations - удалена текущая подборка.");
         compilationService.deleteCompilationById(compId);
+    }
+
+    @PatchMapping("/{compId}")
+    public CompilationDto patchCompilation(@PathVariable Long compId,
+                                           @RequestBody UpdateCompilationRequest updateCompilationRequest) {
+        log.info("PATCH/compilations - обновлена текущая подборка");
+        return compilationService.patchCompilation(compId, updateCompilationRequest);
     }
 
 }
