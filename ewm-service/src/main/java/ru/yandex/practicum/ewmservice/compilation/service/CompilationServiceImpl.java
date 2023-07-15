@@ -16,10 +16,12 @@ import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
 import ru.yandex.practicum.ewmservice.event.mapper.EventMapper;
 import ru.yandex.practicum.ewmservice.event.model.Event;
+import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
 import ru.yandex.practicum.ewmservice.user.mapper.UserMapper;
 
+import javax.validation.ValidationException;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +35,9 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto postCompilation(NewCompilationDto newCompilationDto) {
+        if (newCompilationDto.getTitle()==null) {
+            throw new ValidationException("Нет заголовка подборки");
+        }
         List<Event> eventList = eventRepository.findAllById(newCompilationDto.getEvents());
         Set<EventShortDto> eventsSet = eventRepository.findAllById(newCompilationDto.getEvents()).stream()
                 .map(event -> EventMapper.eventShortDto(event,
@@ -45,6 +50,9 @@ public class CompilationServiceImpl implements CompilationService {
                 .pinned(newCompilationDto.getPinned())
                 .title(newCompilationDto.getTitle())
                 .build();
+        if (newCompilationToReturn.getPinned()==null) {
+            newCompilationToReturn.setPinned(Boolean.FALSE);
+        }
         Compilation compilation = compilationRepository.save(CompilationMapper.toCompilation(newCompilationToReturn, eventList.stream().collect(Collectors.toSet())));
         return CompilationMapper.toCompilationDto(compilation, eventsSet);
     }

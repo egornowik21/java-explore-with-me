@@ -8,6 +8,7 @@ import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Data
@@ -16,8 +17,10 @@ public class UserDto {
     Long id;
     @NotBlank
     @NotNull
+    @Size(max = 250,min = 2)
     String name;
     @NotBlank
     @Email
+    @Size(max = 254,min = 6)
     String email;
 }
