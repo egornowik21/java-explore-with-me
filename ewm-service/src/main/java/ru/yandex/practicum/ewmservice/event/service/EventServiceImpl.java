@@ -169,6 +169,30 @@ public class EventServiceImpl implements EventService {
                 toLocationDto(updatedEvent.getLocation()));
     }
 
+    public List<EventShortDto> getPublicEventList(String text,
+                                                  List<Long> categories,
+                                                  Boolean paid,
+                                                  LocalDateTime rangeStart,
+                                                  LocalDateTime rangeEnd,
+                                                  Boolean onlyAvailable,
+                                                  String sort,
+                                                  Integer from,
+                                                  Integer size) {
+        return null;
+    }
+    public EventFullDto getPublicEventById(Long eventId) {
+        Event event = eventRepository.findById(eventId).
+                orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        if (event.getState()!=State.PUBLISHED) {
+            throw new ConflictException("Событие не опубликовано");
+        }
+        return EventMapper.toEventFullDto(event,
+                toCategoryDto(event.getCategory()),
+                toUserShortDto(event.getInitiator()),
+                toLocationDto(event.getLocation())
+        );
+    }
+
     private void checkUpdateAdminParams(Event event, UpdateAdminRequest updateAdminRequest) {
         if (updateAdminRequest.getAnnotation() != null) {
             event.setAnnotation(updateAdminRequest.getAnnotation());

@@ -36,7 +36,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto postCompilation(NewCompilationDto newCompilationDto) {
-        if (newCompilationDto.getTitle()==null || newCompilationDto.getTitle().length()>50) {
+        if (newCompilationDto.getTitle()==null) {
             throw new BadRequestException("Нет заголовка подборки");
         }
         List<Event> eventList = eventRepository.findAllById(newCompilationDto.getEvents());

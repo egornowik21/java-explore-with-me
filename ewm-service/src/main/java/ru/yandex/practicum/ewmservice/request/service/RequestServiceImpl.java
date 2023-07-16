@@ -80,7 +80,6 @@ public class RequestServiceImpl implements RequestService {
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Request request = requestRepository.findById(requestId).
                 orElseThrow(() -> new NotFoundException("Запрос не найден"));
-        ;
         if (!user.getId().equals(request.getRequester().getId())) {
             throw new ConflictException("Это не запрос пользователя");
         }

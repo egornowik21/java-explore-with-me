@@ -3,6 +3,7 @@ package ru.yandex.practicum.ewmservice.event.dao;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import ru.yandex.practicum.ewmservice.event.dto.EventFullDto;
 import ru.yandex.practicum.ewmservice.event.model.Event;
 import ru.yandex.practicum.ewmservice.event.model.State;
 
@@ -20,5 +21,5 @@ public interface EventRepository extends JpaRepository<Event,Long> {
                                                            List<State> states,
                                                            List<Long> categoriesId,
                                                            Pageable pageable);
-
+    //Optional<Event> findByIdAndPublished(Long eventId);
 }

@@ -32,7 +32,7 @@ public class RequestController {
         return requestService.requestList(userId);
     }
 
-    @PatchMapping("/{requestId}/cancel")
+    @PatchMapping("/requests/{requestId}/cancel")
     public ParticipationRequestDto patchRequest(@PathVariable("userId") Long userId,
                                                 @PathVariable("requestId") Long requestId) {
         log.info("PATCH/requests - запрос отмене");

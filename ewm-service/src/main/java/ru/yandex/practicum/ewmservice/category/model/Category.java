@@ -10,7 +10,11 @@ import javax.persistence.*;
 @Setter
 @Builder
 @Entity
-@Table(name = "categories")
+@Table(name = "categories", uniqueConstraints =
+        {
+                @UniqueConstraint(columnNames = "name")
+        })
+
 @NoArgsConstructor
 @AllArgsConstructor
 public class Category {

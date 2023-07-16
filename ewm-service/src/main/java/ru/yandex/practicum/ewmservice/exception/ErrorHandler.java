@@ -35,6 +35,7 @@ public class ErrorHandler {
                 .build();
     }
 
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ApiError handleBadRequestException(final MethodArgumentNotValidException e) {

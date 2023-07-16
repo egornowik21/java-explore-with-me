@@ -10,6 +10,7 @@ import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
 import ru.yandex.practicum.ewmservice.category.dto.NewCategoryDto;
 import ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper;
 import ru.yandex.practicum.ewmservice.category.model.Category;
+import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 
 import java.util.List;
@@ -42,7 +43,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto postCategory(NewCategoryDto newCategoryDto) {
         Category category = CategoryMapper.inNewCategoryDto(newCategoryDto);
-
+        if (categoryRepository.findByName(category.getName()).size()>0) {
+            throw new ConflictException("Имя категории уже существует");
+        }
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
     @Override
@@ -53,6 +56,9 @@ public class CategoryServiceImpl implements CategoryService {
             category.setName(category.getName());
         } else {
             category.setName(categoryDto.getName());
+        }
+        if (categoryRepository.findByName(categoryDto.getName()).size()>0) {
+            throw new ConflictException("Имя категории уже существует");
         }
         categoryRepository.save(category);
         return CategoryMapper.toCategoryDto(category);

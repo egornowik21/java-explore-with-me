@@ -21,4 +21,5 @@ public interface EventService {
                                          Integer from,
                                          Integer size);
     EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest);
+    EventFullDto getPublicEventById(Long eventId);
 }
