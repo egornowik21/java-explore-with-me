@@ -23,6 +23,17 @@ public class ErrorHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
     }
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ApiError handleBadRequestException(final BadRequestException e) {
+        return ApiError.builder()
+                .errors(List.of(e.getClass().getName()))
+                .message(e.getMessage())
+                .reason(e.getMessage())
+                .status(HttpStatus.BAD_REQUEST)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)

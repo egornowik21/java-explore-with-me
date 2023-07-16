@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.compilation.dto.CompilationDto;
 import ru.yandex.practicum.ewmservice.compilation.service.CompilationService;
 
+import javax.validation.constraints.Min;
 import java.util.List;
 
 @RestController
@@ -23,9 +24,9 @@ public class PublicCompilationController {
     }
 
     @GetMapping
-    public List<CompilationDto> getCompilationList(@RequestParam(value = "pinned", required = false) Boolean pinned,
-                                                   @RequestParam(defaultValue = "0") Integer from,
-                                                   @RequestParam(defaultValue = "10") Integer size) {
+    public List<CompilationDto> getCompilationList(@RequestParam(defaultValue = "false") Boolean pinned,
+                                                   @RequestParam(defaultValue = "0") @Min(0) Integer from,
+                                                   @RequestParam(defaultValue = "10") @Min(1) Integer size) {
         log.info("GET/compilations - получен список всех подборок");
         return compilationService.getCompilationDtoList(pinned, from, size);
     }

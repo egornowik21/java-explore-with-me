@@ -16,6 +16,7 @@ import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
 import ru.yandex.practicum.ewmservice.event.mapper.EventMapper;
 import ru.yandex.practicum.ewmservice.event.model.Event;
+import ru.yandex.practicum.ewmservice.exception.BadRequestException;
 import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
@@ -35,8 +36,8 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto postCompilation(NewCompilationDto newCompilationDto) {
-        if (newCompilationDto.getTitle()==null) {
-            throw new ValidationException("Нет заголовка подборки");
+        if (newCompilationDto.getTitle()==null || newCompilationDto.getTitle().length()>50) {
+            throw new BadRequestException("Нет заголовка подборки");
         }
         List<Event> eventList = eventRepository.findAllById(newCompilationDto.getEvents());
         Set<EventShortDto> eventsSet = eventRepository.findAllById(newCompilationDto.getEvents()).stream()
