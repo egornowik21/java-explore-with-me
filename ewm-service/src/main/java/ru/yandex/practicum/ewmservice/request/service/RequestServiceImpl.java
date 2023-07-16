@@ -21,6 +21,7 @@ import ru.yandex.practicum.ewmservice.user.model.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +39,8 @@ public class RequestServiceImpl implements RequestService {
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Event event = eventRepository.findById(eventId).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
-        List<Request> requestList = requestRepository.findByEventIdAndRequesterId(user.getId(), event.getId());
-        if (requestList.size() > 0) {
+        Request requestCheck = requestRepository.findOneByEventIdAndRequesterId(userId, eventId);
+        if (!Objects.isNull(requestCheck)) {
             throw new ConflictException("Нельзя оставить повторный запрос");
         }
         if (!event.getState().equals(State.PUBLISHED)) {
@@ -48,7 +49,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getInitiator().getId().equals(user.getId())) {
             throw new ConflictException("Инициатор не может отправлять запросы");
         }
-        if (event.getParticipantLimit() != 0 && event.getParticipants().size() > event.getParticipantLimit()) {
+        if (event.getParticipantLimit() != 0 && event.getParticipants().size() >= event.getParticipantLimit()) {
             throw new ConflictException("Превышен лимит запросов на событие");
         }
         Request request = Request.builder()
@@ -83,6 +84,10 @@ public class RequestServiceImpl implements RequestService {
         if (!user.getId().equals(request.getRequester().getId())) {
             throw new ConflictException("Это не запрос пользователя");
         }
+        if (request.getEvent().getParticipantLimit() != 0 && request.getEvent().getParticipants().size() >=
+                request.getEvent().getParticipantLimit()) {
+            throw new ConflictException("Превышен лимит запросов на событие");
+        }
         request.setStatus(Status.CANCELED);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
@@ -102,27 +107,27 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public EventRequestStatusUpdateResult patchEventRequest(Long userId,
-                                                     Long eventId,
-                                                     EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
+                                                            Long eventId,
+                                                            EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Event event = eventRepository.findByIdAndInitiatorIdOrderByEventDateDesc(eventId,user.getId()).
+        Event event = eventRepository.findByIdAndInitiatorIdOrderByEventDateDesc(eventId, user.getId()).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestDto> canceledRequests = new ArrayList<>();
-        if (event.getParticipants().size()>event.getParticipantLimit()) {
+        if (event.getParticipants().size() >= event.getParticipantLimit()) {
             throw new ConflictException("Запросов больше, чем лимит заявок на событие");
         }
         if (!event.getState().equals(State.PUBLISHED)) {
             throw new ConflictException("Событие не подтверждено");
         }
         List<Request> requestList = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
-        requestList.forEach(r-> {
+        requestList.forEach(r -> {
             if (eventRequestStatusUpdateRequest.getStatus() == Status.REJECTED) {
                 r.setStatus(Status.REJECTED);
                 canceledRequests.add(RequestMapper.toParticipationRequestDto(r));
             }
-            if (eventRequestStatusUpdateRequest.getStatus()==Status.CONFIRMED) {
+            if (eventRequestStatusUpdateRequest.getStatus() == Status.CONFIRMED) {
                 r.setStatus(Status.CONFIRMED);
                 confirmedRequests.add(RequestMapper.toParticipationRequestDto(r));
             }
@@ -132,7 +137,6 @@ public class RequestServiceImpl implements RequestService {
                 .rejectedRequests(canceledRequests)
                 .build();
     }
-
 
 
 }

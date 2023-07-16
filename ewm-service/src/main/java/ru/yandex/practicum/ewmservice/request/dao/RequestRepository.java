@@ -6,10 +6,11 @@ import ru.yandex.practicum.ewmservice.event.model.Event;
 import ru.yandex.practicum.ewmservice.request.model.Request;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface RequestRepository extends JpaRepository<Request,Long> {
 
-    List<Request> findByEventIdAndRequesterId(Long eventId, Long userId);
+    Request findOneByEventIdAndRequesterId(Long eventId, Long userId);
     List<Request> findByRequesterId(Long userId);
     List<Request> findByEventIn(List<Event> eventList);
 }

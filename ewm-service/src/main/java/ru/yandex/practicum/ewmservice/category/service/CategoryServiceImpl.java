@@ -10,6 +10,7 @@ import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
 import ru.yandex.practicum.ewmservice.category.dto.NewCategoryDto;
 import ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper;
 import ru.yandex.practicum.ewmservice.category.model.Category;
+import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final EventRepository eventRepository;
 
     @Override
     public List<CategoryDto> getAllCategories(Integer from, Integer size) {
@@ -66,6 +68,9 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategoryById(Long catId) {
+        if (eventRepository.findAllByCategory_Id(catId).size()>0) {
+            throw new ConflictException("Есть связанные события для этой категори");
+        }
         categoryRepository.deleteById(catId);
     }
 

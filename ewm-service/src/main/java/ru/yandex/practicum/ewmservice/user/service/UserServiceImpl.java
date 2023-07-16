@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.dto.UserDto;
 import ru.yandex.practicum.ewmservice.user.mapper.UserMapper;
@@ -38,6 +39,9 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto postUser(UserDto userDto) {
+        if (repository.findByName(userDto.getName()).size()>0) {
+            throw new ConflictException("Имя категории уже существует");
+        }
         User newUser = repository.save(UserMapper.inUserDto(userDto));
         return UserMapper.toUserDto(newUser);
     }
