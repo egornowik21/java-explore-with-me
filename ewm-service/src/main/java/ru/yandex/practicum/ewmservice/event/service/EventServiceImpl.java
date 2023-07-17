@@ -1,18 +1,18 @@
 package ru.yandex.practicum.ewmservice.event.service;
 
+import com.querydsl.core.BooleanBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.ewmservice.category.dao.CategoryRepository;
 import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.event.dto.*;
 import ru.yandex.practicum.ewmservice.event.mapper.EventMapper;
-import ru.yandex.practicum.ewmservice.event.model.Event;
-import ru.yandex.practicum.ewmservice.event.model.State;
-import ru.yandex.practicum.ewmservice.event.model.StateAction;
+import ru.yandex.practicum.ewmservice.event.model.*;
 import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
@@ -25,10 +25,12 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static ru.yandex.practicum.ewmservice.category.mapper.CategoryMapper.toCategoryDto;
 import static ru.yandex.practicum.ewmservice.location.mapper.LocationMapper.toLocationDto;
 import static ru.yandex.practicum.ewmservice.user.mapper.UserMapper.toUserShortDto;
+
 
 @Service
 @Slf4j
@@ -169,22 +171,69 @@ public class EventServiceImpl implements EventService {
                 toLocationDto(updatedEvent.getLocation()));
     }
 
+    @Override
     public List<EventShortDto> getPublicEventList(String text,
                                                   List<Long> categories,
                                                   Boolean paid,
                                                   LocalDateTime rangeStart,
                                                   LocalDateTime rangeEnd,
                                                   Boolean onlyAvailable,
-                                                  String sort,
+                                                  EventSortType sort,
                                                   Integer from,
                                                   Integer size) {
-        return null;
+        if (rangeStart != null && rangeEnd != null) {
+            if (rangeStart.isAfter(rangeEnd)) {
+                throw new ConflictException("Дата старта после даты окончания");
+            }
+        }
+        BooleanBuilder builder = new BooleanBuilder();
+        if (!Objects.isNull(text)) {
+            builder.and(QEvent.event.annotation.containsIgnoreCase(text))
+                    .or(QEvent.event.description.containsIgnoreCase(text));
+        }
+        if (!Objects.isNull(categories)) {
+            builder.and(QEvent.event.category.id.in(categories));
+        }
+        if (!Objects.isNull(paid)) {
+            if (paid == Boolean.TRUE) {
+                builder.and(QEvent.event.paid.isTrue());
+            }
+            if (paid == Boolean.FALSE) {
+                builder.and(QEvent.event.paid.isFalse());
+            }
+        }
+        if (!Objects.isNull(rangeEnd) && Objects.isNull(rangeStart)) {
+            builder.and(QEvent.event.eventDate.after(rangeStart))
+                    .or(QEvent.event.eventDate.before(rangeEnd)
+                    );
+            if (!Objects.isNull(onlyAvailable)) {
+                builder.and(QEvent.event.participantLimit.goe(0));
+            }
+        }
+        Sort sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
+        if (sort.equals(EventSortType.EVENT_DATE)) {
+            sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
+        }
+        if (sort.equals(EventSortType.VIEWS)) {
+            sortEvent = Sort.by(Sort.Direction.ASC, "views");
+        }
+        Pageable pageable = PageRequest.of(from, size, sortEvent);
+        Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
+        List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
+                .collect(Collectors.toList());
+        return resulList.stream()
+                .map(event -> EventMapper.eventShortDto(event,
+                        toUserShortDto(event.getInitiator()),
+                        toCategoryDto(event.getCategory()),
+                        toLocationDto(event.getLocation())))
+                .collect(Collectors.toList());
     }
+
     public EventFullDto getPublicEventById(Long eventId) {
         Event event = eventRepository.findById(eventId).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
-        if (event.getState()!=State.PUBLISHED) {
-            throw new ConflictException("Событие не опубликовано");
+        if (event.getState() != State.PUBLISHED) {
+            throw new NotFoundException("Событие не опубликовано");
         }
         return EventMapper.toEventFullDto(event,
                 toCategoryDto(event.getCategory()),

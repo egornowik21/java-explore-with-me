@@ -2,6 +2,7 @@ package ru.yandex.practicum.ewmservice.request.dao;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import ru.yandex.practicum.ewmservice.event.model.Event;
 import ru.yandex.practicum.ewmservice.request.model.Request;
 

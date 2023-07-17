@@ -2,6 +2,7 @@ package ru.yandex.practicum.ewmservice.event.service;
 
 import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.event.dto.*;
+import ru.yandex.practicum.ewmservice.event.model.EventSortType;
 import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
@@ -22,4 +23,13 @@ public interface EventService {
                                          Integer size);
     EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest);
     EventFullDto getPublicEventById(Long eventId);
+    List<EventShortDto> getPublicEventList(String text,
+                                           List<Long> categories,
+                                           Boolean paid,
+                                           LocalDateTime rangeStart,
+                                           LocalDateTime rangeEnd,
+                                           Boolean onlyAvailable,
+                                           EventSortType sort,
+                                           Integer from,
+                                           Integer size);
 }

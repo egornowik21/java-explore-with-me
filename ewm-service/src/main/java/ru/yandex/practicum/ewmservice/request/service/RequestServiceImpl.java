@@ -17,7 +17,6 @@ import ru.yandex.practicum.ewmservice.request.model.Request;
 import ru.yandex.practicum.ewmservice.request.model.Status;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.model.User;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,9 +57,9 @@ public class RequestServiceImpl implements RequestService {
                 .created(LocalDateTime.now())
                 .build();
         if (event.getRequestModeration()) {
-            request.setStatus(Status.PENDING);
-        } else {
             request.setStatus(Status.CONFIRMED);
+        } else {
+            request.setStatus(Status.PENDING);
         }
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
@@ -123,6 +122,9 @@ public class RequestServiceImpl implements RequestService {
         }
         List<Request> requestList = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
         requestList.forEach(r -> {
+            if (!event.getRequestModeration()&&event.getParticipantLimit()==0) {
+                throw new ConflictException("Лимит достигнут");
+            }
             if (eventRequestStatusUpdateRequest.getStatus() == Status.REJECTED) {
                 r.setStatus(Status.REJECTED);
                 canceledRequests.add(RequestMapper.toParticipationRequestDto(r));
