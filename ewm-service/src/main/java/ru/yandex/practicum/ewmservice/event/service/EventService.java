@@ -6,6 +6,7 @@ import ru.yandex.practicum.ewmservice.event.model.EventSortType;
 import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public interface EventService {
                                          Integer from,
                                          Integer size);
     EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest);
-    EventFullDto getPublicEventById(Long eventId);
+    EventFullDto getPublicEventById(Long eventId, HttpServletRequest request);
     List<EventShortDto> getPublicEventList(String text,
                                            List<Long> categories,
                                            Boolean paid,

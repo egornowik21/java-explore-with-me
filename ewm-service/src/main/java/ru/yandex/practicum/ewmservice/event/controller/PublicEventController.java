@@ -8,6 +8,7 @@ import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
 import ru.yandex.practicum.ewmservice.event.model.EventSortType;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -21,9 +22,9 @@ public class PublicEventController {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping("/{eventId}")
-    public EventFullDto getPublicEvent(@PathVariable("eventId") Long eventId) {
+    public EventFullDto getPublicEvent(@PathVariable("eventId") Long eventId, HttpServletRequest request) {
         log.info("GET/events - получено опубликованное событие по ID");
-        return eventService.getPublicEventById(eventId);
+        return eventService.getPublicEventById(eventId,request);
     }
 
     @GetMapping()

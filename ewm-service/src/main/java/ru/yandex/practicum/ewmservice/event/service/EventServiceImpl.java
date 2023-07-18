@@ -20,8 +20,12 @@ import ru.yandex.practicum.ewmservice.location.model.Location;
 import ru.yandex.practicum.ewmservice.location.service.LocationService;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.model.User;
+import ru.yandex.practicum.statsclient.HitClient;
+import ru.yandex.practicum.statsdto.dto.EndpointHitDto;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,6 +45,7 @@ public class EventServiceImpl implements EventService {
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final LocationService locationService;
+    private final HitClient hitClient;
 
     @Override
     public EventFullDto postEvent(Long userId, NewEventDto newEventDto) {
@@ -229,12 +234,19 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
-    public EventFullDto getPublicEventById(Long eventId) {
+    public EventFullDto getPublicEventById(Long eventId, HttpServletRequest request) {
         Event event = eventRepository.findById(eventId).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
         if (event.getState() != State.PUBLISHED) {
             throw new NotFoundException("Событие не опубликовано");
         }
+        EndpointHitDto newHit = EndpointHitDto.builder()
+                .app("ewm-main-service")
+                .uri(request.getRequestURI())
+                .ip(request.getRequestURI())
+                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
+        hitClient.postHit(newHit);
         return EventMapper.toEventFullDto(event,
                 toCategoryDto(event.getCategory()),
                 toUserShortDto(event.getInitiator()),

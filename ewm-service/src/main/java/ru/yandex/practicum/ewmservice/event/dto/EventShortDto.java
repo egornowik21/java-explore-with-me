@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmservice.event.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +27,7 @@ public class EventShortDto {
     @NotNull(message = "Количество одобренных заявок не может быть пустым")
     Integer confirmedRequests;
     @NotNull(message = "Дата события не может быть пустой")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
     @NotNull(message = "Пользователь не может быть пустым")
     UserShortDto initiator;

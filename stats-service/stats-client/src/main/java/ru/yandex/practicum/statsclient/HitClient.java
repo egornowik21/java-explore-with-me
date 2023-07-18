@@ -20,7 +20,7 @@ public class HitClient extends BaseClient {
     private static final String GETSTAT = "/stats";
 
     @Autowired
-    public HitClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public HitClient(@Value("${client.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
