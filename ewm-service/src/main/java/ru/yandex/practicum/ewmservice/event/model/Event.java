@@ -65,4 +65,6 @@ public class Event {
     @JoinTable(name = "requests", joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     Set<User> participants = new HashSet<>();
+    @Column(name = "views", nullable = false)
+    Long views;
 }

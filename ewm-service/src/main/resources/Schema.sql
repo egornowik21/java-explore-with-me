@@ -45,7 +45,8 @@ create table if not exists events (
     published_On timestamp without time zone,
     loc_id bigint not null constraint event_location_id_fk references locations
         on update cascade on delete cascade,
-    state varchar(512) not null
+    state varchar(512) not null,
+    views BIGINT
 );
 
 create table if not exists requests (

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.ewmservice.category.dao.CategoryRepository;
 import ru.yandex.practicum.ewmservice.category.model.Category;
@@ -22,6 +23,7 @@ import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.model.User;
 import ru.yandex.practicum.statsclient.HitClient;
 import ru.yandex.practicum.statsdto.dto.EndpointHitDto;
+import ru.yandex.practicum.statsdto.dto.ViewStatDto;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -240,12 +242,20 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != State.PUBLISHED) {
             throw new NotFoundException("Событие не опубликовано");
         }
+        ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
+                event.getPublishedOn().toString(),
+                LocalDateTime.now().toString(),
+                List.of(request.getRequestURI()),
+                true);
         EndpointHitDto newHit = EndpointHitDto.builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
-                .ip(request.getRequestURI())
-                .timestamp(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .ip(request.getRemoteAddr())
+                .timestamp(String.valueOf(LocalDateTime.now()))
                 .build();
+        if (response.getBody() != null && response.getBody().size() > 0) {
+            event.setViews(response.getBody().get(0).getHits());
+        }
         hitClient.postHit(newHit);
         return EventMapper.toEventFullDto(event,
                 toCategoryDto(event.getCategory()),
