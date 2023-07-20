@@ -117,7 +117,7 @@ public class RequestServiceImpl implements RequestService {
         if (event.getParticipants().size() >= event.getParticipantLimit()) {
             throw new ConflictException("Запросов больше, чем лимит заявок на событие");
         }
-        if (eventRequestStatusUpdateRequest.getStatus() == Status.PENDING && event.getState() == State.PUBLISHED) {
+        if (event.getState() != State.PUBLISHED) {
             throw new ConflictException("Попытка отменить опубликованное событие");
         }
         List<Request> requestList = requestRepository.findAllById(eventRequestStatusUpdateRequest.getRequestIds());
@@ -132,9 +132,9 @@ public class RequestServiceImpl implements RequestService {
             if (eventRequestStatusUpdateRequest.getStatus() == Status.CONFIRMED) {
                 r.setStatus(Status.CONFIRMED);
                 confirmedRequests.add(RequestMapper.toParticipationRequestDto(r));
-            } else {
+            } /*else {
                 throw new ConflictException("Попытка отменить опубликованное событие");
-            }
+            }*/
         });
         return EventRequestStatusUpdateResult.builder()
                 .confirmedRequests(confirmedRequests)

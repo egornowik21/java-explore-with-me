@@ -14,7 +14,6 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "hits")
 public class Hit {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,5 +21,4 @@ public class Hit {
     private String uri;
     private String ip;
     private LocalDateTime datetime;
-
 }
