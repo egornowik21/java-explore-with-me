@@ -132,9 +132,7 @@ public class RequestServiceImpl implements RequestService {
             if (eventRequestStatusUpdateRequest.getStatus() == Status.CONFIRMED) {
                 r.setStatus(Status.CONFIRMED);
                 confirmedRequests.add(RequestMapper.toParticipationRequestDto(r));
-            } /*else {
-                throw new ConflictException("Попытка отменить опубликованное событие");
-            }*/
+            }
         });
         return EventRequestStatusUpdateResult.builder()
                 .confirmedRequests(confirmedRequests)

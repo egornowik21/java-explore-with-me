@@ -1,5 +1,6 @@
 package ru.yandex.practicum.ewmservice.exception;
 
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,6 +67,19 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleConflictException(final ConflictException e) {
+        String message = e.getMessage();
+        return ApiError.builder()
+                .errors(List.of(e.getClass().getName()))
+                .reason(message)
+                .message(e.getLocalizedMessage())
+                .status(HttpStatus.CONFLICT)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ApiError handleConflictExceptionOneMore(final ConstraintViolationException e) {
         String message = e.getMessage();
         return ApiError.builder()
                 .errors(List.of(e.getClass().getName()))
