@@ -8,6 +8,7 @@ import ru.yandex.practicum.ewmservice.location.model.Location;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -16,21 +17,18 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateAdminRequest {
+    @Size(max = 2000, min = 20)
     String annotation;
     Long category;
+    @Size(max = 7000, min = 20)
     String description;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     LocalDateTime eventDate;
-    @NotNull(message = "Локация не может быть пустой")
     Location location;
-    @NotNull(message = "Статус оплаты события не может быть пустым")
     Boolean paid;
-    @NotNull(message = "Ограничение на количество участников не может быть пустым")
     Integer participantLimit;
-    @NotNull(message = "Статус модерации не может быть пустым")
     Boolean requestModeration;
-    @NotNull(message = "Изменение сотояния события не может быть пустым")
     StateAction stateAction;
-    @NotBlank(message = "Заголовок не может быть пустым")
+    @Size(max = 120, min = 3)
     String title;
 }

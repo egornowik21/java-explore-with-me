@@ -9,6 +9,8 @@ import ru.yandex.practicum.ewmservice.event.model.EventSortType;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,7 +21,6 @@ import java.util.List;
 @Slf4j
 public class PublicEventController {
     private final EventService eventService;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @GetMapping("/{eventId}")
     public EventFullDto getPublicEvent(@PathVariable("eventId") Long eventId, HttpServletRequest request) {
@@ -35,12 +36,10 @@ public class PublicEventController {
                                                   @RequestParam(required = false) String rangeEnd,
                                                   @RequestParam(required = false) Boolean onlyAvailable,
                                                   @RequestParam(required = false) EventSortType sort,
-                                                  @RequestParam(defaultValue = "0") Integer from,
-                                                  @RequestParam(defaultValue = "10") Integer size) {
+                                                  @PositiveOrZero @RequestParam(defaultValue = "0") Integer from,
+                                                  @Positive @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET/events - получен список событий с параметрами фильтрации");
-        LocalDateTime startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
-        LocalDateTime endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
-        return eventService.getPublicEventList(text, categories, paid, startsTime, endsTime, onlyAvailable, sort, from, size);
+        return eventService.getPublicEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
 }

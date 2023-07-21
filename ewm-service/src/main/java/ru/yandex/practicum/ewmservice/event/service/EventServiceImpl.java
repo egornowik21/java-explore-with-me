@@ -14,6 +14,7 @@ import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.event.dto.*;
 import ru.yandex.practicum.ewmservice.event.mapper.EventMapper;
 import ru.yandex.practicum.ewmservice.event.model.*;
+import ru.yandex.practicum.ewmservice.exception.BadRequestException;
 import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
@@ -48,6 +49,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationService locationService;
     private final HitClient hitClient;
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
     public EventFullDto postEvent(Long userId, NewEventDto newEventDto) {
@@ -55,6 +57,18 @@ public class EventServiceImpl implements EventService {
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Category category = categoryRepository.findById(newEventDto.getCategory()).
                 orElseThrow(() -> new NotFoundException("Категория не найдена"));
+        if (newEventDto.getPaid()==null) {
+            newEventDto.setPaid(Boolean.FALSE);
+        }
+        if (newEventDto.getRequestModeration()==null) {
+            newEventDto.setRequestModeration(Boolean.TRUE);
+        }
+        if (newEventDto.getParticipantLimit()==null) {
+            newEventDto.setParticipantLimit(0);
+        }
+        if (LocalDateTime.now().plusHours(2).isAfter(newEventDto.getEventDate())) {
+            throw new BadRequestException("Изменение даты события на уже наступившую");
+        }
         Location location = LocationMapper.fromLocationDto(locationService.createLocation(newEventDto.getLocation()));
         Event event = eventRepository.
                 save(EventMapper.fromNewEventDto(newEventDto, category, location, user));
@@ -98,6 +112,11 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        if (updateEventUserRequest.getEventDate()!=null) {
+            if (LocalDateTime.now().plusHours(2).isAfter(updateEventUserRequest.getEventDate())) {
+                throw new BadRequestException("Изменение даты события на уже наступившую");
+            }
+        }
         Event event = eventRepository.findByIdAndInitiatorIdOrderByEventDateDesc(eventId, userId).
                 orElseThrow(() -> new NotFoundException("Событие не найдено"));
         if (!event.getInitiator().getId().equals(user.getId())) {
@@ -107,14 +126,16 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Событие должно быть в ожидании модерации или отмененное");
         }
         checkUpdateParams(event, updateEventUserRequest);
-        StateAction stateAction = updateEventUserRequest.getStateAction();
-        switch (stateAction) {
-            case CANCEL_REVIEW:
-                event.setState(State.CANCELED);
-                break;
-            case SEND_TO_REVIEW:
-                event.setState(State.PENDING);
-                break;
+        if (updateEventUserRequest.getStateAction()!=null) {
+            StateAction stateAction = updateEventUserRequest.getStateAction();
+            switch (stateAction) {
+                case CANCEL_REVIEW:
+                    event.setState(State.CANCELED);
+                    break;
+                case SEND_TO_REVIEW:
+                    event.setState(State.PENDING);
+                    break;
+            }
         }
         Event eventToReturn = eventRepository.save(event);
         return EventMapper.toEventFullDto(eventToReturn,
@@ -128,14 +149,35 @@ public class EventServiceImpl implements EventService {
     public List<EventFullDto> getAdminEventList(List<Long> users,
                                                 List<State> states,
                                                 List<Long> categories,
-                                                LocalDateTime rangeStart,
-                                                LocalDateTime rangeEnd,
+                                                String rangeStart,
+                                                String rangeEnd,
                                                 Integer from,
                                                 Integer size) {
+        LocalDateTime startsTime = null;
+        LocalDateTime endsTime = null;
+        if (rangeStart!=null||rangeEnd!=null) {
+            startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
+            endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
+        }
+        if (startsTime != null && endsTime != null) {
+            if (startsTime.isAfter(endsTime)) {
+                throw new BadRequestException("Дата старта после даты окончания");
+            }
+        }
+        BooleanBuilder builder = new BooleanBuilder();
+        if (!Objects.isNull(categories)) {
+            builder.and(QEvent.event.category.id.in(categories));
+        }
+        if (!Objects.isNull(rangeEnd) && Objects.isNull(rangeStart)) {
+            builder.and(QEvent.event.eventDate.after(startsTime))
+                    .or(QEvent.event.eventDate.before(endsTime)
+                    );
+        }
         Pageable pageable = PageRequest.of(from, size);
-        List<Event> eventList = eventRepository.findByInitiatorInAndStateInAndCategoryIn(users,
-                states, categories, pageable);
-        return eventList.stream()
+        Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
+        List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
+                .collect(Collectors.toList());
+        return resulList.stream()
                 .map(event -> EventMapper.toEventFullDto(event,
                         toCategoryDto(event.getCategory()),
                         toUserShortDto(event.getInitiator()),
@@ -146,7 +188,11 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие не найдено"));
-
+        if (updateAdminRequest.getEventDate()!=null) {
+            if (LocalDateTime.now().plusHours(2).isAfter(updateAdminRequest.getEventDate())) {
+                throw new BadRequestException("Изменение даты события на уже наступившую");
+            }
+        }
         if (event.getState() == State.PUBLISHED) {
             throw new ConflictException("Только отменненые события или события в статусе рассмотрения можно изменить");
         }
@@ -182,15 +228,21 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getPublicEventList(String text,
                                                   List<Long> categories,
                                                   Boolean paid,
-                                                  LocalDateTime rangeStart,
-                                                  LocalDateTime rangeEnd,
+                                                  String rangeStart,
+                                                  String rangeEnd,
                                                   Boolean onlyAvailable,
                                                   EventSortType sort,
                                                   Integer from,
                                                   Integer size) {
-        if (rangeStart != null && rangeEnd != null) {
-            if (rangeStart.isAfter(rangeEnd)) {
-                throw new ConflictException("Дата старта после даты окончания");
+        LocalDateTime startsTime = null;
+        LocalDateTime endsTime = null;
+        if (rangeStart!=null||rangeEnd!=null) {
+            startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
+            endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
+        }
+        if (startsTime != null && endsTime != null) {
+            if (startsTime.isAfter(endsTime)) {
+                throw new BadRequestException("Дата старта после даты окончания");
             }
         }
         BooleanBuilder builder = new BooleanBuilder();
@@ -210,22 +262,25 @@ public class EventServiceImpl implements EventService {
             }
         }
         if (!Objects.isNull(rangeEnd) && Objects.isNull(rangeStart)) {
-            builder.and(QEvent.event.eventDate.after(rangeStart))
-                    .or(QEvent.event.eventDate.before(rangeEnd)
+            builder.and(QEvent.event.eventDate.after(startsTime))
+                    .or(QEvent.event.eventDate.before(endsTime)
                     );
             if (!Objects.isNull(onlyAvailable)) {
                 builder.and(QEvent.event.participantLimit.goe(0));
             }
         }
-        Sort sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
-        if (sort.equals(EventSortType.EVENT_DATE)) {
+        Sort sortEvent= Sort.by(Sort.Direction.ASC, "eventDate");
+        if (!Objects.isNull(sort)) {
             sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
+            if (sort.equals(EventSortType.EVENT_DATE)) {
+                sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
+            }
+            if (sort.equals(EventSortType.VIEWS)) {
+                sortEvent = Sort.by(Sort.Direction.ASC, "views");
+            }
         }
-        if (sort.equals(EventSortType.VIEWS)) {
-            sortEvent = Sort.by(Sort.Direction.ASC, "views");
-        }
-        Pageable pageable = PageRequest.of(from, size, sortEvent);
-        Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
+            Pageable pageable = PageRequest.of(from, size, sortEvent);
+            Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
         return resulList.stream()

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.ewmservice.compilation.mapper;
 
 import ru.yandex.practicum.ewmservice.compilation.dto.CompilationDto;
+import ru.yandex.practicum.ewmservice.compilation.dto.NewCompilationDto;
 import ru.yandex.practicum.ewmservice.compilation.model.Compilation;
 import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
 import ru.yandex.practicum.ewmservice.event.model.Event;
@@ -25,6 +26,14 @@ public class CompilationMapper {
                 .events(eventSet)
                 .pinned(compilationDto.getPinned())
                 .title(compilationDto.getTitle())
+                .build();
+    }
+
+    public static Compilation toCompilationFromNew(NewCompilationDto newCompilationDto) {
+        return Compilation.builder()
+                .events(null)
+                .pinned(null)
+                .title(newCompilationDto.getTitle())
                 .build();
     }
 }

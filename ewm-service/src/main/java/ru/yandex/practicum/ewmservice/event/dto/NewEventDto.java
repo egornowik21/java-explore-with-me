@@ -31,11 +31,8 @@ public class NewEventDto {
     LocalDateTime eventDate;
     @NotNull(message = "Локация не может быть пустой")
     LocationDto location;
-    @NotNull(message = "Информация по оплате не может быть пустой")
     Boolean paid;
-    @NotNull(message = "Лимит участников не может быть пустым")
     Integer participantLimit;
-    @NotNull(message = "Статус пре-модерации не может быть пустым")
     Boolean requestModeration;
     @NotBlank(message = "Заголовок события заявки не может быть пустым")
     @Size(max = 120, min = 3)

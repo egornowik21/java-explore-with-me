@@ -8,6 +8,9 @@ import ru.yandex.practicum.ewmservice.event.dto.UpdateAdminRequest;
 import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
 
+import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -19,8 +22,6 @@ import java.util.List;
 public class AdminEventController {
 
     private final EventService eventService;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     @GetMapping
     public List<EventFullDto> getEventsListByUserId(@RequestParam(required = false) List<Long> users,
                                                     @RequestParam(required = false) List<State> states,
@@ -30,14 +31,12 @@ public class AdminEventController {
                                                     @RequestParam(defaultValue = "0") Integer from,
                                                     @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET/events - получен список событий для админа");
-        LocalDateTime startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
-        LocalDateTime endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
-        return eventService.getAdminEventList(users, states, categories, startsTime, endsTime, from, size);
+        return eventService.getAdminEventList(users, states, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEventAdmin(@PathVariable("eventId") Long eventId,
-                                         @RequestBody UpdateAdminRequest updateAdminRequest) {
+                                         @Valid @RequestBody UpdateAdminRequest updateAdminRequest) {
         return eventService.updateEventAdmin(eventId, updateAdminRequest);
     }
 }

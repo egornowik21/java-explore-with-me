@@ -45,7 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto postCategory(NewCategoryDto newCategoryDto) {
         Category category = CategoryMapper.inNewCategoryDto(newCategoryDto);
-        if (categoryRepository.findByName(category.getName()).size()>0) {
+        if (categoryRepository.findByName(newCategoryDto.getName()).size()>0) {
             throw new ConflictException("Имя категории уже существует");
         }
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
@@ -58,9 +58,6 @@ public class CategoryServiceImpl implements CategoryService {
             category.setName(category.getName());
         } else {
             category.setName(categoryDto.getName());
-        }
-        if (categoryRepository.findByName(categoryDto.getName()).size()>0) {
-            throw new ConflictException("Имя категории уже существует");
         }
         categoryRepository.save(category);
         return CategoryMapper.toCategoryDto(category);

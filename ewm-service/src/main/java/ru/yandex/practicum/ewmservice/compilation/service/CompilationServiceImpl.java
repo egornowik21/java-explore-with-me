@@ -39,22 +39,28 @@ public class CompilationServiceImpl implements CompilationService {
         if (newCompilationDto.getTitle()==null) {
             throw new BadRequestException("Нет заголовка подборки");
         }
-        List<Event> eventList = eventRepository.findAllById(newCompilationDto.getEvents());
-        Set<EventShortDto> eventsSet = eventRepository.findAllById(newCompilationDto.getEvents()).stream()
-                .map(event -> EventMapper.eventShortDto(event,
-                        UserMapper.toUserShortDto(event.getInitiator()),
-                        CategoryMapper.toCategoryDto(event.getCategory()),
-                        LocationMapper.toLocationDto(event.getLocation())))
-                .collect(Collectors.toSet());
-        CompilationDto newCompilationToReturn = CompilationDto.builder()
-                .events(eventsSet)
-                .pinned(newCompilationDto.getPinned())
-                .title(newCompilationDto.getTitle())
-                .build();
-        if (newCompilationToReturn.getPinned()==null) {
-            newCompilationToReturn.setPinned(Boolean.FALSE);
+        Compilation compilation = CompilationMapper.toCompilationFromNew(newCompilationDto);
+        CompilationDto newCompilationToReturn;
+        Set<EventShortDto> eventsSet = null;
+        List<Event> eventList;
+        if (newCompilationDto.getEvents()!=null) {
+            eventList = eventRepository.findAllById(newCompilationDto.getEvents());
+            eventsSet = eventRepository.findAllById(newCompilationDto.getEvents()).stream()
+                    .map(event -> EventMapper.eventShortDto(event,
+                            UserMapper.toUserShortDto(event.getInitiator()),
+                            CategoryMapper.toCategoryDto(event.getCategory()),
+                            LocationMapper.toLocationDto(event.getLocation())))
+                    .collect(Collectors.toSet());
+            newCompilationToReturn = CompilationDto.builder()
+                    .events(eventsSet)
+                    .pinned(newCompilationDto.getPinned())
+                    .title(newCompilationDto.getTitle())
+                    .build();
+            if (newCompilationToReturn.getPinned()==null) {
+                newCompilationToReturn.setPinned(Boolean.FALSE);
+            }
+            compilation = compilationRepository.save(CompilationMapper.toCompilation(newCompilationToReturn, eventList.stream().collect(Collectors.toSet())));
         }
-        Compilation compilation = compilationRepository.save(CompilationMapper.toCompilation(newCompilationToReturn, eventList.stream().collect(Collectors.toSet())));
         return CompilationMapper.toCompilationDto(compilation, eventsSet);
     }
 
