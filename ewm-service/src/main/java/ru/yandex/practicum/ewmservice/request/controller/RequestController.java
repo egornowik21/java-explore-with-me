@@ -53,7 +53,7 @@ public class RequestController {
                                                                    eventRequestStatusUpdateRequest
     ) {
         log.info("PATCH/requests - изменен статус заявок на участие в событии");
-        return requestService.patchEventRequest(userId,eventId,eventRequestStatusUpdateRequest);
+        return requestService.patchEventRequest(userId, eventId, eventRequestStatusUpdateRequest);
     }
 
 }

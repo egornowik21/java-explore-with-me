@@ -1,6 +1,5 @@
 package ru.yandex.practicum.ewmservice.event.dao;
 
-import com.querydsl.core.BooleanBuilder;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,8 +10,9 @@ import ru.yandex.practicum.ewmservice.event.model.State;
 import java.util.List;
 import java.util.Optional;
 
-public interface EventRepository extends JpaRepository<Event, Long>,QuerydslPredicateExecutor<Event> {
+public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPredicateExecutor<Event> {
     List<Event> findByInitiatorIdOrderByEventDateDesc(Long userId, Pageable pageable);
+
     List<Event> findByInitiatorId(Long userId);
 
     Optional<Event> findByIdAndInitiatorIdOrderByEventDateDesc(Long id, Long userId);

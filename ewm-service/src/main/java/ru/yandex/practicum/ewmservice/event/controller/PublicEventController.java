@@ -11,8 +11,6 @@ import ru.yandex.practicum.ewmservice.event.service.EventService;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -25,7 +23,7 @@ public class PublicEventController {
     @GetMapping("/{eventId}")
     public EventFullDto getPublicEvent(@PathVariable("eventId") Long eventId, HttpServletRequest request) {
         log.info("GET/events - получено опубликованное событие по ID");
-        return eventService.getPublicEventById(eventId,request);
+        return eventService.getPublicEventById(eventId, request);
     }
 
     @GetMapping()

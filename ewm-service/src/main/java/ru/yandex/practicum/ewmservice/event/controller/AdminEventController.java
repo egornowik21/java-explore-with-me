@@ -9,10 +9,6 @@ import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
 
 import javax.validation.Valid;
-import javax.validation.constraints.Positive;
-import javax.validation.constraints.PositiveOrZero;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -22,6 +18,7 @@ import java.util.List;
 public class AdminEventController {
 
     private final EventService eventService;
+
     @GetMapping
     public List<EventFullDto> getEventsListByUserId(@RequestParam(required = false) List<Long> users,
                                                     @RequestParam(required = false) List<State> states,

@@ -3,9 +3,7 @@ package ru.yandex.practicum.ewmservice.event.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
 import ru.yandex.practicum.ewmservice.location.dto.LocationDto;
-import ru.yandex.practicum.ewmservice.location.model.Location;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;

@@ -45,16 +45,17 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public CategoryDto postCategory(NewCategoryDto newCategoryDto) {
         Category category = CategoryMapper.inNewCategoryDto(newCategoryDto);
-        if (categoryRepository.findByName(newCategoryDto.getName()).size()>0) {
+        if (categoryRepository.findByName(newCategoryDto.getName()).size() > 0) {
             throw new ConflictException("Имя категории уже существует");
         }
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
+
     @Override
     public CategoryDto patchCategory(Long id, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Категория не найдена"));
-        if (categoryDto.getName()==null) {
+        if (categoryDto.getName() == null) {
             category.setName(category.getName());
         } else {
             category.setName(categoryDto.getName());
@@ -65,7 +66,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public void deleteCategoryById(Long catId) {
-        if (eventRepository.findAllByCategory_Id(catId).size()>0) {
+        if (eventRepository.findAllByCategory_Id(catId).size() > 0) {
             throw new ConflictException("Есть связанные события для этой категори");
         }
         categoryRepository.deleteById(catId);

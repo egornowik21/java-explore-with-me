@@ -32,10 +32,10 @@ public class AdminUserController {
     }
 
     @GetMapping
-    public List<UserDto> getAllUsers(@RequestParam(value = "ids",required = false) Long ids,
+    public List<UserDto> getAllUsers(@RequestParam(value = "ids", required = false) Long ids,
                                      @RequestParam(defaultValue = "0") Integer from,
                                      @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET/users - получен список всех пользователей.");
-        return userService.getAllUsers(ids,from,size);
+        return userService.getAllUsers(ids, from, size);
     }
 }

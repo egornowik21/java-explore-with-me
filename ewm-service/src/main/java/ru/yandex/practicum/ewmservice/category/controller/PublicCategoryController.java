@@ -19,7 +19,7 @@ public class PublicCategoryController {
     public List<CategoryDto> getAllCategories(
             @RequestParam(defaultValue = "0") Integer from,
             @RequestParam(defaultValue = "10") Integer size) {
-        log.info("GET/categories - public API get all categories");
+        log.info("GET/categories - получен список всех категорий.");
         return categoryService.getAllCategories(from, size);
     }
 

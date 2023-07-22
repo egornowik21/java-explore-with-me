@@ -20,7 +20,6 @@ import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
 import ru.yandex.practicum.ewmservice.location.model.Location;
 import ru.yandex.practicum.ewmservice.location.service.LocationService;
-import ru.yandex.practicum.ewmservice.request.model.Request;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.model.User;
 import ru.yandex.practicum.statsclient.HitClient;
@@ -58,13 +57,13 @@ public class EventServiceImpl implements EventService {
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Category category = categoryRepository.findById(newEventDto.getCategory()).
                 orElseThrow(() -> new NotFoundException("Категория не найдена"));
-        if (newEventDto.getPaid()==null) {
+        if (newEventDto.getPaid() == null) {
             newEventDto.setPaid(Boolean.FALSE);
         }
-        if (newEventDto.getRequestModeration()==null) {
+        if (newEventDto.getRequestModeration() == null) {
             newEventDto.setRequestModeration(Boolean.TRUE);
         }
-        if (newEventDto.getParticipantLimit()==null) {
+        if (newEventDto.getParticipantLimit() == null) {
             newEventDto.setParticipantLimit(0);
         }
         if (LocalDateTime.now().plusHours(2).isAfter(newEventDto.getEventDate())) {
@@ -113,7 +112,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         User user = userRepository.findById(userId).
                 orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        if (updateEventUserRequest.getEventDate()!=null) {
+        if (updateEventUserRequest.getEventDate() != null) {
             if (LocalDateTime.now().plusHours(2).isAfter(updateEventUserRequest.getEventDate())) {
                 throw new BadRequestException("Изменение даты события на уже наступившую");
             }
@@ -127,7 +126,7 @@ public class EventServiceImpl implements EventService {
             throw new ConflictException("Событие должно быть в ожидании модерации или отмененное");
         }
         checkUpdateParams(event, updateEventUserRequest);
-        if (updateEventUserRequest.getStateAction()!=null) {
+        if (updateEventUserRequest.getStateAction() != null) {
             StateAction stateAction = updateEventUserRequest.getStateAction();
             switch (stateAction) {
                 case CANCEL_REVIEW:
@@ -156,7 +155,7 @@ public class EventServiceImpl implements EventService {
                                                 Integer size) {
         LocalDateTime startsTime = null;
         LocalDateTime endsTime = null;
-        if (rangeStart!=null||rangeEnd!=null) {
+        if (rangeStart != null || rangeEnd != null) {
             startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
             endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
         }
@@ -189,7 +188,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest) {
         Event event = eventRepository.findById(eventId).orElseThrow(
                 () -> new NotFoundException("Событие не найдено"));
-        if (updateAdminRequest.getEventDate()!=null) {
+        if (updateAdminRequest.getEventDate() != null) {
             if (LocalDateTime.now().plusHours(2).isAfter(updateAdminRequest.getEventDate())) {
                 throw new BadRequestException("Изменение даты события на уже наступившую");
             }
@@ -237,7 +236,7 @@ public class EventServiceImpl implements EventService {
                                                   Integer size) {
         LocalDateTime startsTime = null;
         LocalDateTime endsTime = null;
-        if (rangeStart!=null||rangeEnd!=null) {
+        if (rangeStart != null || rangeEnd != null) {
             startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
             endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
         }
@@ -270,7 +269,7 @@ public class EventServiceImpl implements EventService {
                 builder.and(QEvent.event.participantLimit.goe(0));
             }
         }
-        Sort sortEvent= Sort.by(Sort.Direction.ASC, "eventDate");
+        Sort sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
         if (!Objects.isNull(sort)) {
             sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
             if (sort.equals(EventSortType.EVENT_DATE)) {
@@ -280,8 +279,8 @@ public class EventServiceImpl implements EventService {
                 sortEvent = Sort.by(Sort.Direction.ASC, "views");
             }
         }
-            Pageable pageable = PageRequest.of(from, size, sortEvent);
-            Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
+        Pageable pageable = PageRequest.of(from, size, sortEvent);
+        Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
         return resulList.stream()
@@ -298,21 +297,21 @@ public class EventServiceImpl implements EventService {
         if (event.getState() != State.PUBLISHED) {
             throw new NotFoundException("Событие не опубликовано");
         }
-        ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
-                event.getPublishedOn().toString(),
-                LocalDateTime.now().toString(),
-                List.of(request.getRequestURI()),
-                true);
         EndpointHitDto newHit = EndpointHitDto.builder()
                 .app("ewm-main-service")
                 .uri(request.getRequestURI())
                 .ip(request.getRemoteAddr())
                 .timestamp(String.valueOf(LocalDateTime.now()))
                 .build();
-        if (response.getBody() != null && response.getBody().size() > 0) {
+        hitClient.postHit(newHit);
+        ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
+                event.getPublishedOn().toString(),
+                LocalDateTime.now().toString(),
+                List.of(request.getRequestURI()),
+                true);
+        if (response.getBody() != null) {
             event.setViews(response.getBody().get(0).getHits());
         }
-        hitClient.postHit(newHit);
         return EventMapper.toEventFullDto(event,
                 toCategoryDto(event.getCategory()),
                 toUserShortDto(event.getInitiator()),

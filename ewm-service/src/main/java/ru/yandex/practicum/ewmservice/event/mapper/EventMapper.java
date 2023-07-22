@@ -15,14 +15,12 @@ import ru.yandex.practicum.ewmservice.user.dto.UserShortDto;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     public static EventFullDto toEventFullDto(Event event, CategoryDto categoryDto, UserShortDto userShortDto, LocationDto locationDto) {
         return EventFullDto.builder()
                 .id(event.getId())
@@ -40,7 +38,7 @@ public class EventMapper {
                 .requestModeration(event.getRequestModeration())
                 .state(event.getState())
                 .title(event.getTitle())
-                .views(null)
+                .views(event.getViews())
                 .build();
     }
 
@@ -58,20 +56,6 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .title(event.getTitle())
                 .eventDate(event.getEventDate())
-                .build();
-    }
-
-    public static NewEventDto newEventDto(Event event, CategoryDto categoryDto, LocationDto locationDto) {
-        return NewEventDto.builder()
-                .annotation(event.getAnnotation())
-                .category(categoryDto.getId())
-                .description(event.getDescription())
-                .eventDate(event.getEventDate())
-                .location(locationDto)
-                .paid(event.getPaid())
-                .participantLimit(event.getParticipantLimit())
-                .requestModeration(event.getRequestModeration())
-                .title(event.getTitle())
                 .build();
     }
 

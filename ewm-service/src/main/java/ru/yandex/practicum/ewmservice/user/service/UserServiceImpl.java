@@ -39,7 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto postUser(UserDto userDto) {
-        if (repository.findByName(userDto.getName()).size()>0) {
+        if (repository.findByName(userDto.getName()).size() > 0) {
             throw new ConflictException("Имя категории уже существует");
         }
         User newUser = repository.save(UserMapper.inUserDto(userDto));

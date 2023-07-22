@@ -7,8 +7,6 @@ import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.event.model.StateAction;
 import ru.yandex.practicum.ewmservice.location.model.Location;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 

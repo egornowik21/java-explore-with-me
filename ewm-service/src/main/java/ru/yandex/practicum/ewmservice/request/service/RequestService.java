@@ -8,10 +8,14 @@ import java.util.List;
 
 public interface RequestService {
     ParticipationRequestDto postRequest(Long userId, Long eventId);
+
     List<ParticipationRequestDto> requestList(Long userId);
+
     ParticipationRequestDto patchRequest(Long userId, Long requestId);
+
     List<ParticipationRequestDto> getEventRequestList(Long userId, Long eventId);
+
     EventRequestStatusUpdateResult patchEventRequest(Long userId,
-                                              Long eventId,
-                                              EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest);
+                                                     Long eventId,
+                                                     EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest);
 }

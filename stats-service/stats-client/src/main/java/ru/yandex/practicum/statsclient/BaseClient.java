@@ -26,6 +26,7 @@ public class BaseClient {
     protected <T> ResponseEntity<EndpointHitDto> post(String path, T body) {
         return hitSendRequest(path, body);
     }
+
     private <T> ResponseEntity<EndpointHitDto> hitSendRequest(String path, T body) {
         HttpEntity<T> requestEntity = new HttpEntity<>(body);
         ResponseEntity<EndpointHitDto> statServerResponse;

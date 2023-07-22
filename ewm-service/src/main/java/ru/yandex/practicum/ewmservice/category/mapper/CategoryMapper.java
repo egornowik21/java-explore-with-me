@@ -12,19 +12,6 @@ public class CategoryMapper {
                 .build();
     }
 
-    public static Category inCategoryDto(CategoryDto categoryDto) {
-        return Category.builder()
-                .id(categoryDto.getId())
-                .name(categoryDto.getName())
-                .build();
-    }
-
-    public static NewCategoryDto toNewCategoryDto(Category category) {
-        return NewCategoryDto.builder()
-                .name(category.getName())
-                .build();
-    }
-
     public static Category inNewCategoryDto(NewCategoryDto newCategoryDto) {
         return Category.builder()
 
