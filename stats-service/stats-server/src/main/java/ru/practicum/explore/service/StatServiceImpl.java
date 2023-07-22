@@ -27,15 +27,12 @@ public class StatServiceImpl implements StatService {
     @Override
     public EndpointHitDto addHit(EndpointHitDto hitDto) {
         Hit savedHit = hitRepository.save(HitMapper.toHit(hitDto));
-        log.info("Создан Hit id={}", savedHit.getId());
-
         return HitMapper.toHitDto(savedHit);
     }
 
     @Override
     public List<ViewStatDto> getStats(String start, String end, List<String> uris, Boolean unique) {
         if (start == null || end == null) {
-            log.warn("Не указана дата начала или конца диапазона");
             throw new WrongParameterException("Не указана дата начала или конца диапазона");
         }
         LocalDateTime startDate = formatDate(start);
@@ -45,18 +42,19 @@ public class StatServiceImpl implements StatService {
             throw new WrongParameterException("Дата начала диапазона не может быть позже даты конца диапазона");
         }
         List<String> urisList = checkUriFormat(uris);
-        List<Stats> statList = new ArrayList<>();
-        if (urisList.isEmpty() && !unique) {
-            statList = hitRepository.findStatsByDatetimeBetween(startDate, endDate);
-        }
-        if (!urisList.isEmpty() && (unique == null || !unique)) {
-            statList = hitRepository.findStatsByDatetimeBetweenAndUriIn(startDate, endDate, urisList);
-        }
-        if (urisList.isEmpty() && Boolean.TRUE.equals(unique)) {
-            statList = hitRepository.findStatsByDistinctIp(startDate, endDate);
-        }
-        if (!urisList.isEmpty() && Boolean.TRUE.equals(unique)) {
-            statList = hitRepository.findStatsByUriDistinctIp(startDate, endDate, urisList);
+        List<Stats> statList;
+        if (unique) {
+            if (uris.isEmpty() || uris == null) {
+                statList = hitRepository.findStatsByDistinctIp(startDate, endDate);
+            } else {
+                statList = hitRepository.findStatsByUriDistinctIp(startDate, endDate, urisList);
+            }
+        } else {
+            if (uris.isEmpty() || uris == null) {
+                statList = hitRepository.findStatsByDatetimeBetween(startDate, endDate);
+            } else {
+                statList = hitRepository.findStatsByDatetimeBetweenAndUriIn(startDate, endDate, urisList);
+            }
         }
         return statList.stream().map(HitMapper::toStatsDto).collect(Collectors.toList());
     }
