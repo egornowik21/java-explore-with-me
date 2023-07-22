@@ -56,6 +56,7 @@ public class EventMapper {
                 .participantLimit(event.getParticipantLimit())
                 .title(event.getTitle())
                 .eventDate(event.getEventDate())
+                .views(event.getViews())
                 .build();
     }
 

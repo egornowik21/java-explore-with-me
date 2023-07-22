@@ -233,7 +233,7 @@ public class EventServiceImpl implements EventService {
                                                   Boolean onlyAvailable,
                                                   EventSortType sort,
                                                   Integer from,
-                                                  Integer size) {
+                                                  Integer size,HttpServletRequest request) {
         LocalDateTime startsTime = null;
         LocalDateTime endsTime = null;
         if (rangeStart != null || rangeEnd != null) {
@@ -283,6 +283,23 @@ public class EventServiceImpl implements EventService {
         Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
+        for (Event event : resulList) {
+            EndpointHitDto newHit = EndpointHitDto.builder()
+                    .app("ewm-main-service")
+                    .uri(request.getRequestURI())
+                    .ip(request.getRemoteAddr())
+                    .timestamp(String.valueOf(LocalDateTime.now()))
+                    .build();
+            hitClient.postHit(newHit);
+            ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
+                    event.getPublishedOn().toString(),
+                    LocalDateTime.now().toString(),
+                    List.of(request.getRequestURI()),
+                    true);
+            if (response.getBody() != null) {
+                event.setViews(response.getBody().get(0).getHits());
+            }
+        }
         return resulList.stream()
                 .map(event -> EventMapper.eventShortDto(event,
                         toUserShortDto(event.getInitiator()),

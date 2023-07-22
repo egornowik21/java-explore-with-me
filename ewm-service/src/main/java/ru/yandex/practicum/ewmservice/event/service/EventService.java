@@ -36,5 +36,6 @@ public interface EventService {
                                            Boolean onlyAvailable,
                                            EventSortType sort,
                                            Integer from,
-                                           Integer size);
+                                           Integer size,
+                                           HttpServletRequest request);
 }

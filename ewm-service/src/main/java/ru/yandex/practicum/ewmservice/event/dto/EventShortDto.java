@@ -42,5 +42,5 @@ public class EventShortDto {
     @NotBlank(message = "Заголовок не может быть пустым")
     String title;
     @NotNull(message = "Количество просмотров не может быть пустым")
-    Integer views;
+    Long views;
 }
