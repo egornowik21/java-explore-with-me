@@ -128,10 +128,12 @@ public class RequestServiceImpl implements RequestService {
             if (eventRequestStatusUpdateRequest.getStatus() == Status.REJECTED) {
                 r.setStatus(Status.REJECTED);
                 canceledRequests.add(RequestMapper.toParticipationRequestDto(r));
+                requestRepository.save(r);
             }
             if (eventRequestStatusUpdateRequest.getStatus() == Status.CONFIRMED) {
                 r.setStatus(Status.CONFIRMED);
                 confirmedRequests.add(RequestMapper.toParticipationRequestDto(r));
+                requestRepository.save(r);
             }
         });
         return EventRequestStatusUpdateResult.builder()

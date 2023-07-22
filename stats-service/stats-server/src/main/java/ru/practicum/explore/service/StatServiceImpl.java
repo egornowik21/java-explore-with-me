@@ -47,16 +47,16 @@ public class StatServiceImpl implements StatService {
         List<String> urisList = checkUriFormat(uris);
         List<Stats> statList = new ArrayList<>();
         if (urisList.isEmpty() && !unique) {
-            statList = hitRepository.findStatsByDatetimeBetween(startDate, endDate);                    // только начало и конец, unique=false
+            statList = hitRepository.findStatsByDatetimeBetween(startDate, endDate);
         }
         if (!urisList.isEmpty() && (unique == null || !unique)) {
-            statList = hitRepository.findStatsByDatetimeBetweenAndUriIn(startDate, endDate, urisList);  // начало и конец, uri != null, unique=false
+            statList = hitRepository.findStatsByDatetimeBetweenAndUriIn(startDate, endDate, urisList);
         }
         if (urisList.isEmpty() && Boolean.TRUE.equals(unique)) {
-            statList = hitRepository.findStatsByDistinctIp(startDate, endDate);                         // начало и конец, unique=true
+            statList = hitRepository.findStatsByDistinctIp(startDate, endDate);
         }
         if (!urisList.isEmpty() && Boolean.TRUE.equals(unique)) {
-            statList = hitRepository.findStatsByUriDistinctIp(startDate, endDate, urisList);            // все параметры
+            statList = hitRepository.findStatsByUriDistinctIp(startDate, endDate, urisList);
         }
         return statList.stream().map(HitMapper::toStatsDto).collect(Collectors.toList());
     }

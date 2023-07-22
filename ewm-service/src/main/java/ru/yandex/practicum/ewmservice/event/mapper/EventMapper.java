@@ -16,6 +16,8 @@ import ru.yandex.practicum.ewmservice.user.model.User;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
+import java.util.Set;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EventMapper {
@@ -26,7 +28,7 @@ public class EventMapper {
                 .id(event.getId())
                 .annotation(event.getAnnotation())
                 .category(categoryDto)
-                .confirmedRequests(null)
+                .confirmedRequests(Optional.ofNullable(event.getParticipants()).orElse(Set.of()).size())
                 .createdOn(LocalDateTime.now())
                 .description(event.getDescription())
                 .eventDate(event.getEventDate())

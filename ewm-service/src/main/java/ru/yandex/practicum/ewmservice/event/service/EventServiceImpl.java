@@ -20,6 +20,7 @@ import ru.yandex.practicum.ewmservice.exception.NotFoundException;
 import ru.yandex.practicum.ewmservice.location.mapper.LocationMapper;
 import ru.yandex.practicum.ewmservice.location.model.Location;
 import ru.yandex.practicum.ewmservice.location.service.LocationService;
+import ru.yandex.practicum.ewmservice.request.model.Request;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.model.User;
 import ru.yandex.practicum.statsclient.HitClient;
