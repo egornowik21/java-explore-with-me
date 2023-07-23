@@ -86,8 +86,7 @@ public class CompilationServiceImpl implements CompilationService {
     public List<CompilationDto> getCompilationDtoList(Boolean pinned, Integer from, Integer size) {
         Pageable pageable = PageRequest.of(from, size);
         List<Compilation> compilationList = compilationRepository.findByPinned(pinned, pageable);
-        return compilationList.stream().
-                map(c -> CompilationMapper.toCompilationDto(c, c.getEvents().stream().map(
+        return compilationList.stream().map(c -> CompilationMapper.toCompilationDto(c, c.getEvents().stream().map(
                                         event -> EventMapper.eventShortDto(event,
                                                 UserMapper.toUserShortDto(event.getInitiator()),
                                                 CategoryMapper.toCategoryDto(event.getCategory()),

@@ -35,10 +35,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto postRequest(Long userId, Long eventId) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Event event = eventRepository.findById(eventId).
-                orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         Request requestExist = requestRepository.findOneByEventIdAndRequesterId(eventId, userId);
         if (!Objects.isNull(requestExist)) {
             throw new ConflictException("Нельзя оставить повторный запрос");
@@ -67,8 +65,7 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> requestList(Long userId) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         List<Request> requestList = requestRepository.findByRequesterId(user.getId());
         return requestList.stream()
                 .map(RequestMapper::toParticipationRequestDto)
@@ -77,10 +74,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto patchRequest(Long userId, Long requestId) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Request request = requestRepository.findById(requestId).
-                orElseThrow(() -> new NotFoundException("Запрос не найден"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Request request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос не найден"));
         if (!user.getId().equals(request.getRequester().getId())) {
             throw new ConflictException("Это не запрос пользователя");
         }
@@ -94,10 +89,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getEventRequestList(Long userId, Long eventId) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Event event = eventRepository.findById(eventId).
-                orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         List<Event> eventList = eventRepository.findByInitiatorId(user.getId());
         List<Request> requestList = requestRepository.findByEventIn(eventList);
         return requestList.stream()
@@ -109,10 +102,8 @@ public class RequestServiceImpl implements RequestService {
     public EventRequestStatusUpdateResult patchEventRequest(Long userId,
                                                             Long eventId,
                                                             EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {
-        User user = userRepository.findById(userId).
-                orElseThrow(() -> new NotFoundException("Пользователь не найден"));
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, user.getId()).
-                orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, user.getId()).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         List<ParticipationRequestDto> confirmedRequests = new ArrayList<>();
         List<ParticipationRequestDto> canceledRequests = new ArrayList<>();
         if (event.getParticipants().size() >= event.getParticipantLimit()) {

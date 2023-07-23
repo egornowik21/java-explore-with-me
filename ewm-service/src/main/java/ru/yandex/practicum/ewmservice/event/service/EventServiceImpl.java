@@ -68,8 +68,7 @@ public class EventServiceImpl implements EventService {
             throw new BadRequestException("Изменение даты события на уже наступившую");
         }
         Location location = LocationMapper.fromLocationDto(locationService.createLocation(newEventDto.getLocation()));
-        Event event = eventRepository.
-                save(EventMapper.fromNewEventDto(newEventDto, category, location, user));
+        Event event = eventRepository.save(EventMapper.fromNewEventDto(newEventDto, category, location, user));
         EventFullDto returnEvent = EventMapper.toEventFullDto(event,
                 toCategoryDto(category),
                 toUserShortDto(user),
