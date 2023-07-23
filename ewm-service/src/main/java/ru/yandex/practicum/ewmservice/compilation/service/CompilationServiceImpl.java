@@ -64,8 +64,7 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public void deleteCompilationById(Long id) {
-        Compilation compilation = compilationRepository.findById(id).
-                orElseThrow(() -> new NotFoundException("Подборка не найдена"));
+        Compilation compilation = compilationRepository.findById(id).orElseThrow(() -> new NotFoundException("Подборка не найдена"));
         compilationRepository.deleteById(compilation.getId());
     }
 
@@ -99,8 +98,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     public CompilationDto patchCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
-        Compilation compilation = compilationRepository.findById(compId)
-                .orElseThrow(() -> new NotFoundException("Подборка не найдена"));
+        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка не найдена"));
         if (updateCompilationRequest.getEvents() != null) {
             List<Event> eventList = eventRepository.findAllById(updateCompilationRequest.getEvents());
             compilation.setEvents(eventList.stream().collect(Collectors.toSet()));
