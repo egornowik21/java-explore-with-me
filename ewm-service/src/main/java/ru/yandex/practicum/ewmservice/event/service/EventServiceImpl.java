@@ -29,6 +29,7 @@ import ru.yandex.practicum.statsdto.dto.ViewStatDto;
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -272,24 +273,37 @@ public class EventServiceImpl implements EventService {
         Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
-        for (int i = 0; i < resulList.size(); i++) {
-            EndpointHitDto newHit = EndpointHitDto.builder()
-                    .app("ewm-main-service")
-                    .uri(request.getRequestURI())
-                    .ip(request.getRemoteAddr())
-                    .timestamp(String.valueOf(LocalDateTime.now()))
-                    .build();
-            hitClient.postHit(newHit);
-            ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
-                    resulList.get(i).getPublishedOn().toString(),
-                    LocalDateTime.now().toString(),
-                    List.of(request.getRequestURI()),
-                    true);
-            if (response.getBody() != null) {
-                resulList.get(i).setViews(response.getBody().get(i).getHits());
+        List<String> events = new ArrayList<>();
+        for (Event event : resulList) {
+            events.add("/events/" + event.getId());
+        }
+        if (rangeStart == null) {
+            startsTime = LocalDateTime.now().minusYears(1);
+        }
+        if (rangeEnd == null) {
+            endsTime = LocalDateTime.now();
+        }
+        ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
+                startsTime.toString(),
+                endsTime.toString(),
+                events,
+                true);
+        if (response.getBody() != null && response.getBody().size() > 0) {
+            for (ViewStatDto statsDto : response.getBody()) {
+                Long eventId = Long.parseLong(statsDto.getUri().split("events/")[1]);
+                for (Event event : resulList) {
+                    if (event.getId().equals(eventId)) {
+                        event.setViews(statsDto.getHits());
+                    }
+                }
             }
         }
-
+        hitClient.postHit(EndpointHitDto.builder()
+                .app("ewm-service")
+                .uri(request.getRequestURI())
+                .ip(request.getRemoteAddr())
+                .timestamp(String.valueOf(LocalDateTime.now()))
+                .build());
         return resulList.stream()
                 .map(event -> EventMapper.eventShortDto(event,
                         toUserShortDto(event.getInitiator()),
