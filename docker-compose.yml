@@ -32,7 +32,8 @@ services:
     depends_on:
       - ewm-db
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/ewmservice
+      - CLIENT_URL=http://stats-server:9090
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmservice
       - POSTGRES_USER=share
       - POSTGRES_PASSWORD=password
 
