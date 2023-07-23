@@ -272,7 +272,7 @@ public class EventServiceImpl implements EventService {
         Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
-        for (Event event : resulList) {
+        for (int i = 0; i < resulList.size(); i++) {
             EndpointHitDto newHit = EndpointHitDto.builder()
                     .app("ewm-main-service")
                     .uri(request.getRequestURI())
@@ -281,14 +281,15 @@ public class EventServiceImpl implements EventService {
                     .build();
             hitClient.postHit(newHit);
             ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
-                    event.getPublishedOn().toString(),
+                    resulList.get(i).getPublishedOn().toString(),
                     LocalDateTime.now().toString(),
                     List.of(request.getRequestURI()),
                     true);
             if (response.getBody() != null) {
-                event.setViews(response.getBody().get(0).getHits());
+                resulList.get(i).setViews(response.getBody().get(i).getHits());
             }
         }
+
         return resulList.stream()
                 .map(event -> EventMapper.eventShortDto(event,
                         toUserShortDto(event.getInitiator()),
