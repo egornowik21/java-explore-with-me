@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.event.dto.EventFullDto;
 import ru.yandex.practicum.ewmservice.event.dto.UpdateAdminRequest;
+import ru.yandex.practicum.ewmservice.event.model.SearchAdminEventParams;
 import ru.yandex.practicum.ewmservice.event.model.State;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
 
@@ -28,7 +29,8 @@ public class AdminEventController {
                                                     @RequestParam(defaultValue = "0") Integer from,
                                                     @RequestParam(defaultValue = "10") Integer size) {
         log.info("GET/events - получен список событий для админа");
-        return eventService.getAdminEventList(users, states, categories, rangeStart, rangeEnd, from, size);
+        SearchAdminEventParams searchPrivateEventParams = new SearchAdminEventParams(users,states,categories,rangeStart,rangeEnd,from,size);
+        return eventService.getAdminEventList(searchPrivateEventParams);
     }
 
     @PatchMapping("/{eventId}")

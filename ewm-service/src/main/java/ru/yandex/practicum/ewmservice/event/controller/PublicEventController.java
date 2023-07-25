@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.ewmservice.event.dto.EventFullDto;
 import ru.yandex.practicum.ewmservice.event.dto.EventShortDto;
 import ru.yandex.practicum.ewmservice.event.model.EventSortType;
+import ru.yandex.practicum.ewmservice.event.model.SearchPublicEventParams;
 import ru.yandex.practicum.ewmservice.event.service.EventService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,7 +39,8 @@ public class PublicEventController {
                                                   @Positive @RequestParam(defaultValue = "10") Integer size,
                                                   HttpServletRequest request) {
         log.info("GET/events - получен список событий с параметрами фильтрации");
-        return eventService.getPublicEventList(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size,request);
+        SearchPublicEventParams searchPublicEventParams = new SearchPublicEventParams(text,categories,paid,rangeStart,rangeEnd,onlyAvailable,sort,from,size,request);
+        return eventService.getPublicEventList(searchPublicEventParams);
     }
 
 }

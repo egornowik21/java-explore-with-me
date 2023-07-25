@@ -143,18 +143,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getAdminEventList(List<Long> users,
-                                                List<State> states,
-                                                List<Long> categories,
-                                                String rangeStart,
-                                                String rangeEnd,
-                                                Integer from,
-                                                Integer size) {
+    public List<EventFullDto> getAdminEventList(SearchAdminEventParams searchPrivateEventParams) {
         LocalDateTime startsTime = null;
         LocalDateTime endsTime = null;
-        if (rangeStart != null || rangeEnd != null) {
-            startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
-            endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
+        if (searchPrivateEventParams.getRangeStart() != null || searchPrivateEventParams.getRangeEnd() != null) {
+            startsTime = LocalDateTime.parse(searchPrivateEventParams.getRangeStart(), FORMATTER);
+            endsTime = LocalDateTime.parse(searchPrivateEventParams.getRangeEnd(), FORMATTER);
         }
         if (startsTime != null && endsTime != null) {
             if (startsTime.isAfter(endsTime)) {
@@ -162,15 +156,15 @@ public class EventServiceImpl implements EventService {
             }
         }
         BooleanBuilder builder = new BooleanBuilder();
-        if (!Objects.isNull(categories)) {
-            builder.and(QEvent.event.category.id.in(categories));
+        if (!Objects.isNull(searchPrivateEventParams.getCategories())) {
+            builder.and(QEvent.event.category.id.in(searchPrivateEventParams.getCategories()));
         }
-        if (!Objects.isNull(rangeEnd) && Objects.isNull(rangeStart)) {
+        if (!Objects.isNull(searchPrivateEventParams.getRangeEnd()) && Objects.isNull(searchPrivateEventParams.getRangeStart())) {
             builder.and(QEvent.event.eventDate.after(startsTime))
                     .or(QEvent.event.eventDate.before(endsTime)
                     );
         }
-        Pageable pageable = PageRequest.of(from, size);
+        Pageable pageable = PageRequest.of(searchPrivateEventParams.getFrom(), searchPrivateEventParams.getSize());
         Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
@@ -181,6 +175,7 @@ public class EventServiceImpl implements EventService {
                         toLocationDto(event.getLocation())))
                 .collect(Collectors.toList());
     }
+
     @Transactional
     public EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
@@ -221,20 +216,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getPublicEventList(String text,
-                                                  List<Long> categories,
-                                                  Boolean paid,
-                                                  String rangeStart,
-                                                  String rangeEnd,
-                                                  Boolean onlyAvailable,
-                                                  EventSortType sort,
-                                                  Integer from,
-                                                  Integer size, HttpServletRequest request) {
+    public List<EventShortDto> getPublicEventList(SearchPublicEventParams searchPublicEventParams) {
         LocalDateTime startsTime = null;
         LocalDateTime endsTime = null;
-        if (rangeStart != null || rangeEnd != null) {
-            startsTime = LocalDateTime.parse(rangeStart, FORMATTER);
-            endsTime = LocalDateTime.parse(rangeEnd, FORMATTER);
+        if (searchPublicEventParams.getRangeStart() != null || searchPublicEventParams.getRangeEnd() != null) {
+            startsTime = LocalDateTime.parse(searchPublicEventParams.getRangeStart(), FORMATTER);
+            endsTime = LocalDateTime.parse(searchPublicEventParams.getRangeEnd(), FORMATTER);
         }
         if (startsTime != null && endsTime != null) {
             if (startsTime.isAfter(endsTime)) {
@@ -242,38 +229,38 @@ public class EventServiceImpl implements EventService {
             }
         }
         BooleanBuilder builder = new BooleanBuilder();
-        if (!Objects.isNull(text)) {
-            builder.and(QEvent.event.annotation.containsIgnoreCase(text)).or(QEvent.event.description.containsIgnoreCase(text));
+        if (!Objects.isNull(searchPublicEventParams.getText())) {
+            builder.and(QEvent.event.annotation.containsIgnoreCase(searchPublicEventParams.getText())).or(QEvent.event.description.containsIgnoreCase(searchPublicEventParams.getText()));
         }
-        if (!Objects.isNull(categories)) {
-            builder.and(QEvent.event.category.id.in(categories));
+        if (!Objects.isNull(searchPublicEventParams.getCategories())) {
+            builder.and(QEvent.event.category.id.in(searchPublicEventParams.getCategories()));
         }
-        if (!Objects.isNull(paid)) {
-            if (paid == Boolean.TRUE) {
+        if (!Objects.isNull(searchPublicEventParams.getPaid())) {
+            if (searchPublicEventParams.getPaid() == Boolean.TRUE) {
                 builder.and(QEvent.event.paid.isTrue());
             }
-            if (paid == Boolean.FALSE) {
+            if (searchPublicEventParams.getPaid() == Boolean.FALSE) {
                 builder.and(QEvent.event.paid.isFalse());
             }
         }
-        if (!Objects.isNull(rangeEnd) && Objects.isNull(rangeStart)) {
+        if (!Objects.isNull(searchPublicEventParams.getRangeEnd()) && Objects.isNull(searchPublicEventParams.getRangeStart())) {
             builder.and(QEvent.event.eventDate.after(startsTime)).or(QEvent.event.eventDate.before(endsTime)
             );
-            if (!Objects.isNull(onlyAvailable)) {
+            if (!Objects.isNull(searchPublicEventParams.getOnlyAvailable())) {
                 builder.and(QEvent.event.participantLimit.goe(0));
             }
         }
         Sort sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
-        if (!Objects.isNull(sort)) {
+        if (!Objects.isNull(searchPublicEventParams.getSort())) {
             sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
-            if (sort.equals(EventSortType.EVENT_DATE)) {
+            if (searchPublicEventParams.getSort().equals(EventSortType.EVENT_DATE)) {
                 sortEvent = Sort.by(Sort.Direction.ASC, "eventDate");
             }
-            if (sort.equals(EventSortType.VIEWS)) {
+            if (searchPublicEventParams.getSort().equals(EventSortType.VIEWS)) {
                 sortEvent = Sort.by(Sort.Direction.ASC, "views");
             }
         }
-        Pageable pageable = PageRequest.of(from, size, sortEvent);
+        Pageable pageable = PageRequest.of(searchPublicEventParams.getFrom(), searchPublicEventParams.getSize(), sortEvent);
         Iterable<Event> resulIter = eventRepository.findAll(builder, pageable);
         List<Event> resulList = StreamSupport.stream(resulIter.spliterator(), false)
                 .collect(Collectors.toList());
@@ -281,10 +268,10 @@ public class EventServiceImpl implements EventService {
         for (Event event : resulList) {
             events.add("/events/" + event.getId());
         }
-        if (rangeStart == null) {
+        if (searchPublicEventParams.getRangeStart() == null) {
             startsTime = LocalDateTime.now().minusYears(1);
         }
-        if (rangeEnd == null) {
+        if (searchPublicEventParams.getRangeEnd() == null) {
             endsTime = LocalDateTime.now();
         }
         ResponseEntity<List<ViewStatDto>> response = hitClient.getStats(
@@ -304,8 +291,8 @@ public class EventServiceImpl implements EventService {
         }
         hitClient.postHit(EndpointHitDto.builder()
                 .app("ewm-service")
-                .uri(request.getRequestURI())
-                .ip(request.getRemoteAddr())
+                .uri(searchPublicEventParams.getRequest().getRequestURI())
+                .ip(searchPublicEventParams.getRequest().getRemoteAddr())
                 .timestamp(String.valueOf(LocalDateTime.now()))
                 .build());
         return resulList.stream()
