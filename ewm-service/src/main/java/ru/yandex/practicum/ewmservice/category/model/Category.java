@@ -16,8 +16,6 @@ import javax.persistence.*;
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     Long id;
-    @Column(name = "name", nullable = false, length = 320)
     String name;
 }

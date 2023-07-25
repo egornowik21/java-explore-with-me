@@ -3,6 +3,7 @@ package ru.yandex.practicum.ewmservice.request.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
 import ru.yandex.practicum.ewmservice.event.model.Event;
 import ru.yandex.practicum.ewmservice.event.model.State;
@@ -27,6 +28,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class RequestServiceImpl implements RequestService {
 
     private final RequestRepository requestRepository;
@@ -34,6 +36,7 @@ public class RequestServiceImpl implements RequestService {
     private final UserRepository userRepository;
 
     @Override
+    @Transactional
     public ParticipationRequestDto postRequest(Long userId, Long eventId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
@@ -73,6 +76,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public ParticipationRequestDto patchRequest(Long userId, Long requestId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Request request = requestRepository.findById(requestId).orElseThrow(() -> new NotFoundException("Запрос не найден"));
@@ -99,6 +103,7 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResult patchEventRequest(Long userId,
                                                             Long eventId,
                                                             EventRequestStatusUpdateRequest eventRequestStatusUpdateRequest) {

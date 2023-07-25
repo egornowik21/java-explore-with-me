@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmservice.category.dao.CategoryRepository;
 import ru.yandex.practicum.ewmservice.category.dto.CategoryDto;
 import ru.yandex.practicum.ewmservice.category.dto.NewCategoryDto;
@@ -19,6 +20,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
@@ -43,6 +45,7 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    @Transactional
     public CategoryDto postCategory(NewCategoryDto newCategoryDto) {
         Category category = CategoryMapper.inNewCategoryDto(newCategoryDto);
         if (categoryRepository.findByName(newCategoryDto.getName()).size() > 0) {
@@ -52,6 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto patchCategory(Long id, CategoryDto categoryDto) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Категория не найдена"));
@@ -65,6 +69,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void deleteCategoryById(Long catId) {
         if (eventRepository.findAllByCategory_Id(catId).size() > 0) {
             throw new ConflictException("Есть связанные события для этой категори");

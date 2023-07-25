@@ -15,7 +15,6 @@ import javax.validation.constraints.Size;
 public class CategoryDto {
     Long id;
     @NotBlank(message = "имя категории не может быть пустым")
-    @NotNull(message = "имя категории не может быть пустым")
     @Size(max = 50)
     String name;
 }

@@ -27,12 +27,14 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
     private final CompilationRepository compilationRepository;
     private final EventRepository eventRepository;
 
     @Override
+    @Transactional
     public CompilationDto postCompilation(NewCompilationDto newCompilationDto) {
         if (newCompilationDto.getTitle() == null) {
             throw new BadRequestException("Нет заголовка подборки");
@@ -63,6 +65,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     @Override
+    @Transactional
     public void deleteCompilationById(Long id) {
         Compilation compilation = compilationRepository.findById(id).orElseThrow(() -> new NotFoundException("Подборка не найдена"));
         compilationRepository.deleteById(compilation.getId());
@@ -95,7 +98,7 @@ public class CompilationServiceImpl implements CompilationService {
                                 .collect(Collectors.toSet()))
                 ).collect(Collectors.toList());
     }
-
+    @Transactional
     public CompilationDto patchCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка не найдена"));
         if (updateCompilationRequest.getEvents() != null) {

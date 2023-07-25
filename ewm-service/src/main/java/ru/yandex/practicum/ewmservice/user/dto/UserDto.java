@@ -16,7 +16,6 @@ import javax.validation.constraints.Size;
 public class UserDto {
     Long id;
     @NotBlank
-    @NotNull
     @Size(max = 250, min = 2)
     String name;
     @NotBlank

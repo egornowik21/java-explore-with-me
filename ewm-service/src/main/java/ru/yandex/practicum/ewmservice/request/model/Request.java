@@ -20,10 +20,8 @@ import java.time.LocalDateTime;
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     Long id;
     @ManyToOne
-    @JoinColumn(name = "event_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
     Event event;
     @ManyToOne(fetch = FetchType.EAGER)
@@ -32,6 +30,5 @@ public class Request {
     User requester;
     @Enumerated(EnumType.STRING)
     Status status;
-    @Column(name = "created", nullable = false)
     LocalDateTime created;
 }

@@ -8,6 +8,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmservice.category.dao.CategoryRepository;
 import ru.yandex.practicum.ewmservice.category.model.Category;
 import ru.yandex.practicum.ewmservice.event.dao.EventRepository;
@@ -43,6 +44,7 @@ import static ru.yandex.practicum.ewmservice.user.mapper.UserMapper.toUserShortD
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
 
     private final EventRepository eventRepository;
@@ -53,6 +55,7 @@ public class EventServiceImpl implements EventService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Override
+    @Transactional
     public EventFullDto postEvent(Long userId, NewEventDto newEventDto) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() -> new NotFoundException("Категория не найдена"));
@@ -104,6 +107,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventFullDto patchEvent(Long userId, Long eventId, UpdateEventUserRequest updateEventUserRequest) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         if (updateEventUserRequest.getEventDate() != null) {
@@ -177,7 +181,7 @@ public class EventServiceImpl implements EventService {
                         toLocationDto(event.getLocation())))
                 .collect(Collectors.toList());
     }
-
+    @Transactional
     public EventFullDto updateEventAdmin(Long eventId, UpdateAdminRequest updateAdminRequest) {
         Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
         if (updateAdminRequest.getEventDate() != null) {

@@ -24,33 +24,23 @@ import java.util.Set;
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     Long id;
-    @Column(name = "annotation", nullable = false)
     String annotation;
-    @Column(name = "title", nullable = false)
     String title;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "category_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
     Category category;
-    @Column(name = "description", nullable = false)
     String description;
-    @Column(name = "paid", nullable = false)
     Boolean paid;
-    @Column(name = "event_date", nullable = false)
     LocalDateTime eventDate;
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @JsonIgnoreProperties({"handler", "hibernateLazyInitializer"})
     User initiator;
-    @Column(name = "participant_limit", nullable = false)
     Integer participantLimit;
-    @Column(name = "request_Moderation", nullable = false)
     Boolean requestModeration;
-    @Column(name = "published_On", nullable = false)
     LocalDateTime publishedOn;
-    @Column(name = "created_on", nullable = false)
     LocalDateTime createdOn;
     @ManyToOne
     @JoinColumn(name = "loc_id", referencedColumnName = "id")
@@ -63,6 +53,5 @@ public class Event {
     @JoinTable(name = "requests", joinColumns = @JoinColumn(name = "event_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
     Set<User> participants = new HashSet<>();
-    @Column(name = "views", nullable = false)
     Long views;
 }

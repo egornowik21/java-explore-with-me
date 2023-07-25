@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.ewmservice.exception.ConflictException;
 import ru.yandex.practicum.ewmservice.user.dao.UserRepository;
 import ru.yandex.practicum.ewmservice.user.dto.UserDto;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
 
     private final UserRepository repository;
@@ -38,6 +40,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto postUser(UserDto userDto) {
         if (repository.findByName(userDto.getName()).size() > 0) {
             throw new ConflictException("Имя категории уже существует");
@@ -47,6 +50,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public void deleteUserById(Long userId) {
         repository.deleteById(userId);
     }
