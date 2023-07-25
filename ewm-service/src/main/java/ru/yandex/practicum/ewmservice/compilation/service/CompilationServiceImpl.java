@@ -90,14 +90,15 @@ public class CompilationServiceImpl implements CompilationService {
         Pageable pageable = PageRequest.of(from, size);
         List<Compilation> compilationList = compilationRepository.findByPinned(pinned, pageable);
         return compilationList.stream().map(c -> CompilationMapper.toCompilationDto(c, c.getEvents().stream().map(
-                                        event -> EventMapper.eventShortDto(event,
-                                                UserMapper.toUserShortDto(event.getInitiator()),
-                                                CategoryMapper.toCategoryDto(event.getCategory()),
-                                                LocationMapper.toLocationDto(event.getLocation()))
-                                )
-                                .collect(Collectors.toSet()))
-                ).collect(Collectors.toList());
+                                event -> EventMapper.eventShortDto(event,
+                                        UserMapper.toUserShortDto(event.getInitiator()),
+                                        CategoryMapper.toCategoryDto(event.getCategory()),
+                                        LocationMapper.toLocationDto(event.getLocation()))
+                        )
+                        .collect(Collectors.toSet()))
+        ).collect(Collectors.toList());
     }
+
     @Transactional
     public CompilationDto patchCompilation(Long compId, UpdateCompilationRequest updateCompilationRequest) {
         Compilation compilation = compilationRepository.findById(compId).orElseThrow(() -> new NotFoundException("Подборка не найдена"));

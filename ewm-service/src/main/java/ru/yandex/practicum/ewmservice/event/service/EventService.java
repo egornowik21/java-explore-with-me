@@ -1,10 +1,8 @@
 package ru.yandex.practicum.ewmservice.event.service;
 
 import ru.yandex.practicum.ewmservice.event.dto.*;
-import ru.yandex.practicum.ewmservice.event.model.EventSortType;
 import ru.yandex.practicum.ewmservice.event.model.SearchAdminEventParams;
 import ru.yandex.practicum.ewmservice.event.model.SearchPublicEventParams;
-import ru.yandex.practicum.ewmservice.event.model.State;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
