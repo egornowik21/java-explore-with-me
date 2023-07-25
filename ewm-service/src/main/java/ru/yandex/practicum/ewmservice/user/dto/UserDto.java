@@ -1,6 +1,5 @@
 package ru.yandex.practicum.ewmservice.user.dto;
 
-import com.sun.istack.NotNull;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Data;
