@@ -5,19 +5,22 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import ru.yandex.practicum.statsdto.dto.EndpointHitDto;
+import ru.yandex.practicum.statsdto.dto.ViewStatDto;
 
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class HitClient extends BaseClient {
 
-    private static final String POSTHIT = "/hit";
-    private static final String GETSTAT = "/stats";
+    private static final String POST_HIT = "/hit";
+    private static final String GET_STAT = "/stats";
 
     @Autowired
-    public HitClient(@Value("${stats-server.url}") String serverUrl, RestTemplateBuilder builder) {
+    public HitClient(@Value("${client.url}") String serverUrl, RestTemplateBuilder builder) {
         super(
                 builder
                         .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
@@ -26,18 +29,17 @@ public class HitClient extends BaseClient {
         );
     }
 
-    public ResponseEntity<Object> postHit(EndpointHitDto endpointHitDto) {
-        return post(POSTHIT, endpointHitDto);
+    public ResponseEntity<EndpointHitDto> postHit(EndpointHitDto endpointHitDto) {
+        return post(POST_HIT, endpointHitDto);
     }
 
-    public ResponseEntity<Object> getStats(String start, String end, List<String> uris, Boolean unique) {
+    public ResponseEntity<List<ViewStatDto>> getStats(String start, String end, List<String> uris, Boolean unique) {
         Map<String, Object> parameters = Map.of(
                 "start", start,
                 "end", end,
                 "uris", uris,
-                "unique", unique
-        );
-        return get(GETSTAT + "?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+                "unique", unique);
+        return get(GET_STAT + "?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
     }
 
 
