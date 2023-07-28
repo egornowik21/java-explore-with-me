@@ -37,4 +37,12 @@ public class CommentController {
         log.info("GET/comments - получен список всех комментариев пользователя");
         return commentService.getAllCommentsUser(userId, from, size);
     }
+
+    @PatchMapping("/{comId}")
+    public CommentDto patchComment(@PathVariable("userId") Long userId,
+                                   @PathVariable("comId") Long comId,
+                                   @RequestBody NewComment newComment) {
+        log.info("PATCH/comment - обновлен комментарий пользователя");
+        return commentService.patchComment(comId, userId, newComment);
+    }
 }

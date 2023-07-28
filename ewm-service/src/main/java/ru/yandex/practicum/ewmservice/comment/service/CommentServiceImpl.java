@@ -59,4 +59,15 @@ public class CommentServiceImpl implements CommentService {
                 .collect(Collectors.toList());
     }
 
+    public CommentDto patchComment(Long commentId, Long userId, NewComment newComment) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
+        if (!comment.getAuthor().getId().equals(user.getId())) {
+            throw new ConflictException("Пользователь не является создателем комментария");
+        }
+        comment.setText(newComment.getText());
+        comment.setCreated(LocalDateTime.now());
+        return CommentMapper.toCommentDto(commentRepository.save(comment));
+    }
+
 }

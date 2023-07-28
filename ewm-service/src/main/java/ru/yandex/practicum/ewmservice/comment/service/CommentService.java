@@ -8,4 +8,5 @@ import java.util.List;
 public interface CommentService {
     CommentDto postCommentByEvent(Long userId, NewComment newComment, Long eventId);
     List<CommentDto> getAllCommentsUser(Long userId, Integer from, Integer size);
+    CommentDto patchComment(Long commentId, Long userId, NewComment newComment);
 }
