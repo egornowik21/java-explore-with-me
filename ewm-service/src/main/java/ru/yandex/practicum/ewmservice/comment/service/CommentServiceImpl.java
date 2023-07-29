@@ -59,6 +59,7 @@ public class CommentServiceImpl implements CommentService {
                 .collect(Collectors.toList());
     }
 
+    @Override
     public CommentDto patchComment(Long commentId, Long userId, NewComment newComment) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
         Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
@@ -69,5 +70,31 @@ public class CommentServiceImpl implements CommentService {
         comment.setCreated(LocalDateTime.now());
         return CommentMapper.toCommentDto(commentRepository.save(comment));
     }
+
+    @Override
+    public void deleteCommentByUser(Long userId, Long commentId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
+        if (!comment.getAuthor().getId().equals(user.getId())) {
+            throw new ConflictException("Пользователь не является создателем комментария");
+        }
+        commentRepository.deleteById(commentId);
+    }
+    @Override
+    public void deleteCommentByAdmin(Long commentId) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new NotFoundException("Комментарий не найден"));
+        commentRepository.deleteById(commentId);
+    }
+
+    @Override
+    public List<CommentDto> getAllCommentsEvent(Long eventId, Integer from, Integer size) {
+        Pageable pageable = PageRequest.of(from, size);
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
+        List<Comment> commentsList = commentRepository.findByEventId(event.getId(), pageable);
+        return commentsList.stream()
+                .map(comment -> CommentMapper.toCommentDto(comment))
+                .collect(Collectors.toList());
+    }
+
 
 }

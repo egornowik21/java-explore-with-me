@@ -9,4 +9,7 @@ public interface CommentService {
     CommentDto postCommentByEvent(Long userId, NewComment newComment, Long eventId);
     List<CommentDto> getAllCommentsUser(Long userId, Integer from, Integer size);
     CommentDto patchComment(Long commentId, Long userId, NewComment newComment);
+    void deleteCommentByUser(Long userId, Long commentId);
+    void deleteCommentByAdmin(Long commentId);
+    List<CommentDto> getAllCommentsEvent(Long eventId, Integer from, Integer size);
 }
