@@ -6,8 +6,6 @@ import ru.yandex.practicum.ewmservice.comment.model.Comment;
 import ru.yandex.practicum.ewmservice.event.model.Event;
 import ru.yandex.practicum.ewmservice.user.model.User;
 
-import java.time.LocalDateTime;
-
 public class CommentMapper {
     public static CommentDto toCommentDto(Comment comment) {
         return CommentDto.builder()
@@ -15,16 +13,6 @@ public class CommentMapper {
                 .text(comment.getText())
                 .authorName(comment.getAuthor().getName())
                 .created(comment.getCreated())
-                .build();
-    }
-
-    public static Comment inCommentDto(CommentDto commentDto, Event event, User user) {
-        return Comment.builder()
-                .id(commentDto.getId())
-                .text(commentDto.getText())
-                .author(user)
-                .event(event)
-                .created(commentDto.getCreated())
                 .build();
     }
 
