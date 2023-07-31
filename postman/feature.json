@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "8c9c7e7a-6103-4307-a607-9914a0e411f2",
-		"name": "Feature Tests - comments",
+		"_postman_id": "2f4232f3-5597-4644-b0a5-595d1cd687b5",
+		"name": "Feature Tests - comments Copy",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "26932425"
 	},
@@ -44,38 +44,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"const main = async () => {",
-							"    const api = new API(pm);",
-							"    const rnd = new RandomUtils();",
-							"",
-							"    try {",
-							"        const user = await api.addUser(rnd.getUser());",
-							"        const category = await api.addCategory(rnd.getCategory());",
-							"        let event = await api.addEvent(user.id, rnd.getEvent(category.id));",
-							"        event = await api.publishEvent(event.id);",
-							"        pm.request.removeQueryParams(['users', 'categories']);",
-							"        pm.request.addQueryParams([`users=` + user.id, 'categories=' + category.id]);",
-							"        pm.collectionVariables.set('response', event);",
-							"    } catch(err) {",
-							"        console.error(\"Ошибка при подготовке тестовых данных.\", err);",
-							"    }",
-							"};",
-							"",
-							"const interval = setInterval(() => {}, 1000);",
-							"",
-							"setTimeout(async () => ",
-							"    {",
-							"        try {",
-							"            // выполняем наш скрипт",
-							"            await main();",
-							"        } catch (e) {",
-							"            console.error(e);",
-							"        } finally {",
-							"            clearInterval(interval);",
-							"        }",
-							"    },  ",
-							"    100 ",
-							");"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -94,7 +63,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/:userId/comment?eventId=1",
+					"raw": "{{baseUrl}}/users/:userId/comment?eventId=2",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -106,7 +75,7 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "2"
 						}
 					],
 					"variable": [
@@ -232,7 +201,7 @@
 					"variable": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "2"
 						}
 					]
 				}
@@ -409,7 +378,7 @@
 					}
 				},
 				"url": {
-					"raw": "{{baseUrl}}/users/:userId/comment?eventId=1",
+					"raw": "{{baseUrl}}/users/:userId/comment?eventId=2",
 					"host": [
 						"{{baseUrl}}"
 					],
@@ -421,7 +390,7 @@
 					"query": [
 						{
 							"key": "eventId",
-							"value": "1"
+							"value": "2"
 						}
 					],
 					"variable": [
@@ -548,38 +517,7 @@
 					"listen": "prerequest",
 					"script": {
 						"exec": [
-							"const main = async () => {",
-							"    const api = new API(pm);",
-							"    const rnd = new RandomUtils();",
-							"",
-							"    try {",
-							"        const user = await api.addUser(rnd.getUser());",
-							"        const category = await api.addCategory(rnd.getCategory());",
-							"        const event = await api.addEvent(user.id, rnd.getEvent(category.id));",
-							"        const submittedUser = await api.addUser(rnd.getUser());",
-							"        pm.request.removeQueryParams(['eventId']);",
-							"        pm.request.addQueryParams([`eventId=` + event.id]);",
-							"        pm.collectionVariables.set('uid', submittedUser.id);",
-							"    } catch(err) {",
-							"        console.error(\"Ошибка при подготовке тестовых данных.\", err);",
-							"    }",
-							"};",
-							"",
-							"const interval = setInterval(() => {}, 1000);",
-							"",
-							"setTimeout(async () => ",
-							"    {",
-							"        try {",
-							"            // выполняем наш скрипт",
-							"            await main();",
-							"        } catch (e) {",
-							"            console.error(e);",
-							"        } finally {",
-							"            clearInterval(interval);",
-							"        }",
-							"    },  ",
-							"    100 ",
-							");"
+							""
 						],
 						"type": "text/javascript"
 					}
@@ -672,7 +610,7 @@
 					"variable": [
 						{
 							"key": "userId",
-							"value": "99"
+							"value": "150"
 						}
 					]
 				}
