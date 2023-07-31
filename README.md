@@ -1,1 +1,1 @@
-[Feature link](https://github.com/egornowik21/java-explore-with-me/pull/5)
+[Pull request link](https://github.com/egornowik21/java-explore-with-me/pull/5)
