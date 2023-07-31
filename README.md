@@ -17,4 +17,13 @@
 - Postman
 - Actuator
 ---------
+### <a id="title1">Быстрый старт</a>
+Для начала нужно собрать проект с помощью Maven
+```
+mvn clean package
+```
+Далее разверните проект с помощью Docker Compose
+```
+docker-compose up
+```
 [Pull request link](https://github.com/egornowik21/java-explore-with-me/pull/5)
