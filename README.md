@@ -137,4 +137,12 @@ Response
   }
 ]
 ```
+
+### <a id="title1">TODO</a>
+- Поиск событий по локации;
+- Рейтинг пользователя;
+- Подписки на других пользователей;
+- Модерация событий администратором;
+- Добавление Gateway и Spring Security
+---------
 [Pull request link](https://github.com/egornowik21/java-explore-with-me/pull/5)
