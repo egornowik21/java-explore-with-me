@@ -50,7 +50,7 @@ docker-compose up
 ### 2. Сервис статистики
 - [x] запись информации о том, что был обработан запрос к эндпоинту API;
 - [x] предоставление статистики за выбранные даты по выбранному эндпоинту.
-### <a id="title1">Пример запроса</a>
+### <a id="title1">Пример запроса POST</a>
 ```
 http://localhost:8080/users/:userId/events
 ```
@@ -101,5 +101,40 @@ Response
   "views": 999
 }
 ```
-
+### <a id="title1">Пример запроса GET</a>
+```
+http://localhost:8080/admin/events
+```
+Response
+```
+[
+  {
+    "annotation": "Эксклюзивность нашего шоу гарантирует привлечение максимальной зрительской аудитории",
+    "category": {
+      "id": 1,
+      "name": "Концерты"
+    },
+    "confirmedRequests": 5,
+    "createdOn": "2022-09-06 11:00:23",
+    "description": "Что получится, если соединить кукурузу и полёт? Создатели \"Шоу летающей кукурузы\" испытали эту идею на практике и воплотили в жизнь инновационный проект, предлагающий свежий взгляд на развлечения...",
+    "eventDate": "2024-12-31 15:10:05",
+    "id": 1,
+    "initiator": {
+      "id": 3,
+      "name": "Фёдоров Матвей"
+    },
+    "location": {
+      "lat": 55.754167,
+      "lon": 37.62
+    },
+    "paid": true,
+    "participantLimit": 10,
+    "publishedOn": "2022-09-06 15:10:05",
+    "requestModeration": true,
+    "state": "PUBLISHED",
+    "title": "Знаменитое шоу 'Летающая кукуруза'",
+    "views": 999
+  }
+]
+```
 [Pull request link](https://github.com/egornowik21/java-explore-with-me/pull/5)
